@@ -1,7 +1,7 @@
 "use strict";
 
-const { SHOP_ROLE } = require("../constant");
-const shopModel = require("../models/shop.model");
+const { USER_ROLE } = require("../constant");
+const userModel = require("../models/user.model");
 
 const selectOptions = {
   email: 1,
@@ -10,12 +10,12 @@ const selectOptions = {
   verify: 1,
   roles: 1,
   oauthId: 1,
-  oauthStrategy: 1,
+  oauthService: 1,
 };
 
-class ShopService {
+class UserService {
   static findByEmail = async ({ email, select = selectOptions }) => {
-    return await shopModel
+    return await userModel
       .findOne({ email: email })
       .select(select)
       .lean()
@@ -23,20 +23,20 @@ class ShopService {
   };
 
   static findByUserId = async ({ userId, select = selectOptions }) => {
-    return await shopModel
+    return await userModel
       .findOne({ _id: userId })
       .select(select)
       .lean()
       .exec();
   };
 
-  static createShop = async ({
+  static createUser = async ({
     name,
     email,
     password,
-    roles = [SHOP_ROLE.SHOP],
+    roles = [USER_ROLE.SHOP],
   }) => {
-    return await shopModel.create({
+    return await userModel.create({
       name,
       email,
       password,
@@ -48,27 +48,27 @@ class ShopService {
     name,
     email,
     oauthId,
-    oauthStrategy,
-    roles = [SHOP_ROLE.SHOP],
+    oauthService,
+    roles = [USER_ROLE.SHOP],
   }) => {
-    return await shopModel.create({
+    return await userModel.create({
       name,
       email,
       roles,
       oauthId,
-      oauthStrategy,
+      oauthService,
     });
   };
 
   static findByOAuthId = async (strategy, id, select = selectOptions) => {
-    return await shopModel
+    return await userModel
       .findOne({
         oauthId: id,
-        oauthStrategy: strategy,
+        oauthService: strategy,
       })
       .select(select)
       .exec();
   };
 }
 
-module.exports = ShopService;
+module.exports = UserService;

@@ -1,30 +1,35 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose"); // Erase if already required
-const DOCUMENT_NAME = "Key";
-const COLLECTION_NAME = "keys";
+const DOCUMENT_NAME = "Inventory";
+const COLLECTION_NAME = "inventories";
 
 // Declare the Schema of the Mongo model
-const keyTokenSchema = new Schema(
+const inventorySchema = new Schema(
   {
-    userId: {
+    shopId: {
       type: Types.ObjectId,
       required: true,
       ref: "User",
     },
-    publicKey: {
+    productId: {
+      type: Types.ObjectId,
+      required: true,
+      ref: "Product",
+    },
+    location: {
       type: String,
+      default: "unKnown",
+    },
+    stock: {
+      type: Number,
       required: true,
     },
-    privateKey: {
-      type: String,
-      required: true,
-    },
-    refreshTokenUsed: {
+    // dat hang truoc
+    reservations: {
       type: Array,
       default: [],
     },
-    refreshToken: [String],
   },
   {
     timestamps: true,
@@ -33,4 +38,4 @@ const keyTokenSchema = new Schema(
 );
 
 //Export the model
-module.exports = model(DOCUMENT_NAME, keyTokenSchema);
+module.exports = model(DOCUMENT_NAME, inventorySchema);

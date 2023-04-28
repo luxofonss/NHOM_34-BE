@@ -5,7 +5,7 @@ const {
   AuthFailureError,
   ForbiddenError,
 } = require("../core/error.response");
-const ShopService = require("./shop.service");
+const UserService = require("./user.service");
 const bcrypt = require("bcrypt");
 const createKeys = require("../utils/createKey");
 const crypto = require("node:crypto");
@@ -14,30 +14,30 @@ const KeyStoreService = require("./keyToken.service");
 const getInfoData = require("../utils/getInfoData");
 const verifyJWT = require("../utils/verifyJWT");
 const { updateKeyToken } = require("./keyToken.service");
-const { REFRESH_TOKEN_EXPIRATION, SHOP_ROLE } = require("../constant");
+const { USER_ROLE, COOKIE_OPTIONS } = require("../constant");
 
 class AccessService {
   static signUp = async (req, res) => {
     const { name, email, password } = req.body;
     // check if email has already been registered
-    const foundShop = await ShopService.findByEmail({ email });
-    console.log(foundShop);
-    if (foundShop) {
-      throw new BadRequestError("Error: Shop has already been registered");
+    const foundUser = await UserService.findByEmail({ email });
+    console.log(foundUser);
+    if (foundUser) {
+      throw new BadRequestError("Error: User has already been registered");
     }
 
     // hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
     //create new account
-    const newShop = await ShopService.createShop({
+    const newUser = await UserService.createUser({
       name,
       email,
       password: passwordHash,
     });
 
-    // create shop successfully
-    if (newShop) {
+    // create user successfully
+    if (newUser) {
       // create public key, private key
       const { privateKey, publicKey } = createKeys();
       console.log({ privateKey, publicKey });
@@ -48,16 +48,16 @@ class AccessService {
 
       const tokens = await createTokenPair(
         {
-          userId: newShop._id,
+          userId: newUser._id,
           email: email,
-          roles: [SHOP_ROLE.SHOP],
+          roles: [USER_ROLE.SHOP],
         },
         publicKeyObject,
         privateKeyObject
       );
 
       const keyStore = await KeyStoreService.createKeyToken({
-        userId: newShop._id,
+        userId: newUser._id,
         privateKey,
         publicKey,
         refreshToken: tokens.refreshToken,
@@ -67,19 +67,15 @@ class AccessService {
         throw new BadRequestError("Error: Key token is not available");
       }
 
-      res.cookie("jwt", tokens.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      });
+      res.cookie("jwt", tokens.refreshToken, COOKIE_OPTIONS);
+
+      res.cookie("userId", newUser._id, COOKIE_OPTIONS);
 
       return {
         code: "xxx",
-        shop: await getInfoData({
+        user: await getInfoData({
           fields: ["_id", "name", "email"],
-          object: newShop,
+          object: newUser,
         }),
         tokens,
       };
@@ -94,26 +90,25 @@ class AccessService {
     const { email, password } = req.body;
     console.log({ email, password });
     const cookies = req.cookies;
-    console.log("cookies jwt: ", cookies?.jwt);
+    console.log("cookies jwt: ", cookies.jwt);
     // check if user exists
-    const foundShop = await ShopService.findByEmail({ email });
-    if (!foundShop)
+    const foundUser = await UserService.findByEmail({ email });
+    if (!foundUser)
       throw new AuthFailureError("Error: Email or password is not correct");
 
-    console.log(foundShop);
-    console.log("foundShop.oauthId", foundShop.oauthId);
-    if (foundShop.oauthId) {
+    console.log("foundUser: ", foundUser);
+    if (foundUser.oauthId) {
       throw new AuthFailureError(
-        "This email has been used in other login methods"
+        `This email has already been used with ${foundUser.oauthService}`
       );
     }
     // compare password
-    const match = bcrypt.compare(password, foundShop.password);
+    const match = bcrypt.compare(password, foundUser.password);
     if (!match) throw new AuthFailureError("Error: Unauthorized!");
 
     // create public key, private key
-    const keyStore = await KeyStoreService.findByUserId(foundShop._id);
-    if (!keyStore) throw new AuthFailureError("Error: Shop not found!");
+    const keyStore = await KeyStoreService.findByUserId(foundUser._id);
+    if (!keyStore) throw new AuthFailureError("Error: User not found!");
 
     // create token pair
     const publicKeyObject = crypto.createPublicKey(keyStore.publicKey);
@@ -121,23 +116,23 @@ class AccessService {
 
     const tokens = await createTokenPair(
       {
-        userId: foundShop._id,
-        email: foundShop.email,
-        roles: foundShop.roles,
+        userId: foundUser._id,
+        email: foundUser.email,
+        roles: foundUser.roles,
       },
       publicKeyObject,
       privateKeyObject
     );
 
-    const shopKeyStore = await KeyStoreService.findByUserId(foundShop._id);
+    const userKeyStore = await KeyStoreService.findByUserId(foundUser._id);
 
     const newRefreshTokens = !cookies?.jwt
-      ? shopKeyStore.refreshToken
-      : shopKeyStore.refreshToken.filter((rt) => rt !== cookies.jwt);
+      ? userKeyStore.refreshToken
+      : userKeyStore.refreshToken.filter((rt) => rt !== cookies.jwt);
 
     // update keyToken schema
     await KeyStoreService.updateKeyToken({
-      userId: foundShop._id,
+      userId: foundUser._id,
       oldRefreshToken: !cookies?.jwt ? null : cookies.jwt,
       refreshToken: [...newRefreshTokens, tokens.refreshToken],
     });
@@ -152,16 +147,14 @@ class AccessService {
     }
 
     // create secure cookie with refresh token
-    res.cookie("jwt", tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
+    res.cookie("jwt", tokens.refreshToken, COOKIE_OPTIONS);
+
+    // create userId cookies
+    res.cookie("userId", foundUser._id, COOKIE_OPTIONS);
 
     return {
-      shop: getInfoData({
-        object: foundShop,
+      user: getInfoData({
+        object: foundUser,
         fields: ["_id", "email", "roles", "verify"],
       }),
       tokens,
@@ -184,8 +177,8 @@ class AccessService {
     );
 
     // check if user not found
-    const foundShop = await ShopService.findByEmail({ email });
-    if (!foundShop) throw new AuthFailureError("Unauthorized!");
+    const foundUser = await UserService.findByEmail({ email });
+    if (!foundUser) throw new AuthFailureError("Unauthorized!");
 
     // check if refreshToken has been used previously
     const foundKeyTokenUsed = await KeyStoreService.findByRefreshTokenUsed(
@@ -200,7 +193,7 @@ class AccessService {
 
     // create new tokens
     const tokens = await createTokenPair(
-      { userId: userId, email: email, roles: foundShop.roles },
+      { userId: userId, email: email, roles: foundUser.roles },
       holderToken.publicKey,
       holderToken.privateKey
     );
@@ -229,17 +222,15 @@ class AccessService {
     }
 
     // create secure cookie with refresh token
-    res.cookie("jwt", tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
+    res.cookie("jwt", tokens.refreshToken, COOKIE_OPTIONS);
+
+    // create userId cookies
+    res.cookie("userId", foundUser._id, COOKIE_OPTIONS);
 
     return {
-      shop: getInfoData({
+      user: getInfoData({
         fields: ["_id", "name", "email", "roles"],
-        object: foundShop,
+        object: foundUser,
       }),
       accessToken: tokens.accessToken,
     };
@@ -262,13 +253,13 @@ class AccessService {
   };
 
   static getProfile = async ({ accessToken, keyStore }) => {
-    const shop = await ShopService.findByUserId({ userId: keyStore.userId });
-    if (!shop) throw new AuthFailureError("Unauthorized");
+    const user = await UserService.findByUserId({ userId: keyStore.userId });
+    if (!user) throw new AuthFailureError("Unauthorized");
 
     return {
-      shop: getInfoData({
+      user: getInfoData({
         fields: ["_id", "name", "email", "roles"],
-        object: shop,
+        object: user,
       }),
     };
   };

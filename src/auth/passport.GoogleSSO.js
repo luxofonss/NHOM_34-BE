@@ -1,8 +1,8 @@
 const passport = require("passport");
 const { ErrorResponse } = require("../core/error.response");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const shopModel = require("../models/shop.model");
-const ShopService = require("../services/shop.service");
+const userModel = require("../models/user.model");
+const UserService = require("../services/user.service");
 require("dotenv").config();
 
 passport.use(
@@ -24,7 +24,7 @@ passport.use(
         googleId: profile.id,
       };
 
-      const user = await ShopService.findByOAuthId(
+      const user = await UserService.findByOAuthId(
         "Google",
         defaultUser.googleId
       );
@@ -35,11 +35,11 @@ passport.use(
 
       if (!user) {
         try {
-          const newUser = await ShopService.createByOAuth({
+          const newUser = await UserService.createByOAuth({
             name: defaultUser.fullName,
             email: defaultUser.email,
             oauthId: defaultUser.googleId,
-            oauthStrategy: "Google",
+            oauthService: "Google",
           });
           return cb(null, newUser);
         } catch (error) {
@@ -57,7 +57,7 @@ passport.serializeUser((user, callback) => {
 
 passport.deserializeUser(async (id, callback) => {
   try {
-    const user = await ShopService.findByUserId({ userId: id });
+    const user = await UserService.findByUserId({ userId: id });
     console.log("deserialized user: ", user);
     callback(null, user);
   } catch (error) {

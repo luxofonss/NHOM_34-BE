@@ -1,8 +1,8 @@
 const passport = require("passport");
 const JwtStrategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
-const shopModel = require("../models/shop.model");
-const ShopService = require("../services/shop.service");
+const userModel = require("../models/user.model");
+const UserService = require("../services/user.service");
 require("dotenv").config();
 
 const opts = {
@@ -19,7 +19,7 @@ passport.use(
     try {
       console.log("jwt strategy running");
       console.log("jwt payload: ", jwt_payload);
-      const user = await ShopService.findByEmail(jwt_payload.email);
+      const user = await UserService.findByEmail(jwt_payload.email);
       return done(null, user);
     } catch (error) {
       return done(error, false);

@@ -1,11 +1,11 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose"); // Erase if already required
-const DOCUMENT_NAME = "Shop";
-const COLLECTION_NAME = "shop";
+const DOCUMENT_NAME = "User";
+const COLLECTION_NAME = "user";
 
 // Declare the Schema of the Mongo model
-const shopSchema = new Schema(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -29,7 +29,7 @@ const shopSchema = new Schema(
       type: Array,
       default: [],
     },
-    oauthStrategy: {
+    oauthService: {
       type: String,
       enum: ["Google", "Local", "Facebook"],
     },
@@ -47,4 +47,4 @@ const shopSchema = new Schema(
 );
 
 //Export the model
-module.exports = model(DOCUMENT_NAME, shopSchema);
+module.exports = model(DOCUMENT_NAME, userSchema);

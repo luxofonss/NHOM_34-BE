@@ -5,6 +5,7 @@ const AccessService = require("../services/access.service");
 const { check, validationResult } = require("express-validator");
 const { BadRequestError } = require("../core/error.response");
 const asyncHandler = require("../helpers/asyncHandler");
+const passport = require("passport");
 
 class AccessController {
   static signUp = [
@@ -59,6 +60,20 @@ class AccessController {
       }),
     }).send(res);
   };
+
+  static handleLoginGoogle = passport.authenticate("google", {
+    scope: ["profile", "email"],
+    accessType: "offline",
+    prompt: "consent",
+  });
+
+  static handleLoginGoogleCallback = passport.authenticate("google", {
+    failureMessage: "Login failed",
+    failureRedirect: process.env.CLIENT_ERROR_LOGIN_URL,
+    successRedirect: process.env.CLIENT_SUCCESS_LOGIN_URL,
+    accessType: "offline",
+    prompt: "consent",
+  });
 }
 
 module.exports = AccessController;
