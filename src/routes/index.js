@@ -3,8 +3,10 @@
 const express = require("express");
 const router = express.Router();
 
-router.use("/api/v1/discount", require("./discount"));
-router.use("/api/v1/product", require("./product"));
-router.use("/api/v1", require("./access"));
+router.use("/v1/api/discount", require("./discount"));
+router.use("/v1/api/cart", require("./cart"));
+router.use("/v1/api/product", require("./product"));
+router.use("/v1/api", require("./access"));
+
 
 module.exports = router;
