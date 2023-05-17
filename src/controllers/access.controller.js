@@ -20,11 +20,8 @@ class AccessController {
       }
       new Created({
         message: "Registered successfully!",
-<<<<<<< 1b123f062f4ad7f310bf7e173e7a908ee2ddba26
-        metadata: await AccessService.signUp(req, res),
-=======
         metadata: await AccessService.signUp(req, res), 
->>>>>>> add cart service
+
       }).send(res);
     }),
   ];

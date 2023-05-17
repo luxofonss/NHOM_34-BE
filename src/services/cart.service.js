@@ -39,7 +39,7 @@ class CartService {
         return await cart.findOneAndUpdate( query, updateSet, options)
     }
 
-    static async addtoCart({ userId, product = {}}) {
+    static async addToCart({ userId, product = {}}) {
         const userCart = await cart.findOne({ cart_userId: userId })
         if(!userCart) {
             //create a new cart
@@ -54,13 +54,14 @@ class CartService {
     }
 
     //update cart 
-    static async addtoCartV2({ userId, shop_order_ids = {} }) {
+    static async addToCartV2({ userId, shop_order_ids  }) {
         const { productId, quantity, old_quantity } = shop_order_ids[0]?.item_products[0]
+        // console.log(productId, quantity, old_quantity)
         //check product
         const foundProduct = await getProductById(productId)
         if(!foundProduct) throw new NotFoundError('')
         //compare
-        if(foundProduct.product_shop.toString() !== shop_order_ids[0].shopId) {
+        if(foundProduct.shop.toString() !== shop_order_ids[0]?.shop) {
             throw new NotFoundError('Product do not belong to the shop')
         }
         if(quantity === 0) {
