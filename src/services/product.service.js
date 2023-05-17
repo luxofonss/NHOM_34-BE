@@ -70,7 +70,11 @@ class ProductFactory {
       sort,
       filter,
       page,
+<<<<<<< 1b123f062f4ad7f310bf7e173e7a908ee2ddba26
       select: ["name", "description", "price", "thumb"],
+=======
+      select: ["name", "description", "price", "thumb", "shop"],
+>>>>>>> add cart service
     });
   }
 
