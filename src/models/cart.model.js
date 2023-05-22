@@ -7,34 +7,22 @@ const COLLECTION_NAME = 'Carts'
 
 const cartSchema = new Schema(
     {
-    cart_state: {
+    cartState: {
         type: String, 
         required: true,
         enum: ['active', 'completed', 'failed', 'pending'],
         default: 'active',
     },
-    cart_products: {
+    cartProducts: {
         type: Array,
         required: true,
         default: []
-        /*
-            [
-                {
-                    productId,
-                    shop,
-                    quantity,
-                    name, 
-                    price,
-                }
-            ]
-
-        */
     },
-    cart_count_product: {
+    cartCountProduct: {
         type: Number, 
         default: 0
     },
-    cart_userId: {
+    cartUserId: {
         type: Number, 
         required: true
     }

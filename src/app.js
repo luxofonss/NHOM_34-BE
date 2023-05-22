@@ -74,6 +74,7 @@ app.use(cookieParser());
 // init database
 require("./database/init.mongodb");
 
+
 // passport.js
 require("./auth/passport");
 require("./auth/passport.GoogleSSO");

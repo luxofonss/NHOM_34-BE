@@ -1,4 +1,5 @@
 'use strict'
+
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const { cart } = require('../models/cart.model');
 const { getProductById } = require("../models/repositories/product.repo");
@@ -16,10 +17,10 @@ class CartService {
 
     //Start repo cart
     static async createUserCart({userId, product}) {
-        const query = { cart_userId: userId, cart_state: 'active'},
+        const query = { cartUserId: userId, cartState: 'active'},
         updateOrInsert = {
             $addToSet: {
-                cart_products: product
+                cartProducts: product
             }    
         }, options = { upsert: true, new: true}
         return await cart.findOneAndUpdate(query, updateOrInsert, options)
@@ -28,25 +29,25 @@ class CartService {
     static async updateUserCart({userId, product}) {
         const { productId, quantity} = product;
         const query = {
-            cart_userId: userId,
-            'cart_products.productId': productId,
-            cart_state: 'active'
+            cartUserId: userId,
+            'cartProducts.productId': productId,
+            cartState: 'active'
         }, updateSet = {
             $inc: {
-                "cart_products.$.quantity": quantity
+                'cartProducts.quantity': quantity
             }
         }, options = {upsert: true, new: true}
         return await cart.findOneAndUpdate( query, updateSet, options)
     }
 
     static async addToCart({ userId, product = {}}) {
-        const userCart = await cart.findOne({ cart_userId: userId })
+        const userCart = await cart.findOne({ cartUserId: userId })
         if(!userCart) {
             //create a new cart
             return await CartService.createUserCart({ userId, product })
         }
-        if(!userCart.cart_products.length) {
-            userCart.cart_products = [product]
+        if(!userCart.cartProducts.length) {
+            userCart.cartProducts = [product]
             return await userCart.save()
         }
         //update quantity
@@ -54,14 +55,14 @@ class CartService {
     }
 
     //update cart 
-    static async addToCartV2({ userId, shop_order_ids  }) {
-        const { productId, quantity, old_quantity } = shop_order_ids[0]?.item_products[0]
-        // console.log(productId, quantity, old_quantity)
+    static async addToCartV2({ userId, shopOrderIds  }) {
+        const { productId, quantity, oldQuantity } = shopOrderIds[0]?.itemProducts[0]
         //check product
         const foundProduct = await getProductById(productId)
         if(!foundProduct) throw new NotFoundError('')
         //compare
-        if(foundProduct.shop.toString() !== shop_order_ids[0]?.shop) {
+
+        if(foundProduct.shop.toString() !== shopOrderIds[0]?.shop) {
             throw new NotFoundError('Product do not belong to the shop')
         }
         if(quantity === 0) {
@@ -72,7 +73,7 @@ class CartService {
             userId, 
             product: {
                 productId, 
-                quantity: quantity - old_quantity
+                quantity: quantity - oldQuantity
             }
             }
         )
@@ -80,13 +81,15 @@ class CartService {
 
 
     static async deleteUserCart({ userId, productId }) {
-        const query = { cart_userId: userId, cart_state: 'active'},
+        const query = { cartUserId: userId, cartState: 'active'},
         updateSet = {
             $pull: {
-                cart_products: {
+                cartProducts: {
                     productId
                 }
             }
+               
+            
         }
 
         const deleteCart = await cart.updateOne( query, updateSet)
@@ -95,7 +98,7 @@ class CartService {
     }
     static async getListUserCart({ userId, productId }) {
         return await cart.findOne({
-            cart_userId: +userId
+            cartUserId: +userId
     }).lean()
     }
 }

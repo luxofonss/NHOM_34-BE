@@ -114,7 +114,18 @@ const getProductById = async (productId) => {
   return await product.findOne({ _id: convertToObjectIdMongodb(productId)}).lean();
 }
 
-
+const checkProductByServer = async( products) => {
+  return await Promise.all( products.map( async product=> {
+    const foundProduct = await getProductById(product.productId)
+    if(foundProduct) {
+      return {
+        price: foundProduct.productPrice,
+        quantity: product.quantity,
+        productId: product.productId
+      }
+    }
+  }))
+}
 
 module.exports = {
   findOneProduct,
@@ -125,6 +136,7 @@ module.exports = {
   unpublishProductByShop,
   searchProducts,
   updateProductById,
-  getProductById
+  getProductById,
+  checkProductByServer
 
 };
