@@ -20,7 +20,8 @@ class AccessController {
       }
       new Created({
         message: "Registered successfully!",
-        metadata: await AccessService.signUp(req, res),
+        metadata: await AccessService.signUp(req, res), 
+
       }).send(res);
     }),
   ];

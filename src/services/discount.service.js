@@ -107,7 +107,7 @@ class DiscountService {
     }
   }
 
-  static async getALlDiscountCodesByShop({ limit, page, shopId }) {
+  static async getAlDiscountCodesByShop({ limit, page, shopId }) {
     const discounts = await findAllDiscountCodeUnselect({
       limit: +limit,
       page: +page,
