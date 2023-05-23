@@ -1,10 +1,8 @@
 "use strict";
 
-const { product, electronic, clothing } = require("../product.model");
+const product = require("../product.model");
 const { Types } = require("mongoose");
-
 const { getSelectData, getUnselectData, convertToObjectIdMongodb } = require("../../utils/index");
-
 
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
@@ -51,6 +49,7 @@ const searchProducts = async ({ keywords }) => {
   const results = await product
     .find(
       {
+        isPublished: true,
         $text: { $search: regexSearch },
       },
       { score: { $meta: "textScore" } }
@@ -126,6 +125,11 @@ const checkProductByServer = async( products) => {
     }
   }))
 }
+  return await product
+    .findOne({ _id: convertToObjectIdMongodb(productId) })
+    .lean();
+};
+
 
 module.exports = {
   findOneProduct,
@@ -138,5 +142,4 @@ module.exports = {
   updateProductById,
   getProductById,
   checkProductByServer
-
 };

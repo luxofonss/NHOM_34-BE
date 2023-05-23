@@ -1,7 +1,6 @@
 "use strict";
 
 const slugify = require("slugify");
-
 const { Schema, Types, model } = require("mongoose"); // Erase if already required
 const DOCUMENT_NAME = "Product";
 const COLLECTION_NAME = "product";
@@ -9,6 +8,7 @@ const COLLECTION_NAME = "product";
 // Declare the Schema of the Mongo model
 const productSchema = new Schema(
   {
+    shop: { type: Types.ObjectId, ref: "User" },
     name: {
       type: String,
       required: true,
@@ -22,23 +22,74 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    quantity: {
-      type: Number,
-      required: true,
-    },
     price: {
       type: Number,
       required: true,
     },
+    quantity: Number,
     type: {
       type: String,
       required: true,
-      enum: ["Electronics", "Clothing", "Accessory"],
+      enum: ["Mobile", "Tablet"],
     },
-    shop: { type: Types.ObjectId, ref: "User" },
+    condition: {
+      type: Number,
+      min: [0, "Condition must be between 0 and 100"],
+      max: [100, "Condition must be between 0 and 100"],
+      required: true,
+    },
+    preOrder: {
+      type: Boolean,
+      default: false,
+    },
+    minPrice: {
+      type: Number,
+      min: [0, "Condition must be greater than 0"],
+    },
+    maxPrice: {
+      type: Number,
+      min: [0, "Condition must be greater than 0"],
+    },
+    brand: {
+      type: String,
+      required: true,
+    },
+    manufacturerName: {
+      type: Array,
+      default: ["Updating"],
+    },
+    manufacturerAddress: {
+      type: Array,
+      default: ["Updating"],
+    },
+    manufactureDate: {
+      type: Date,
+    },
     attributes: {
       type: Schema.Types.Mixed,
       required: true,
+    },
+    variations: [
+      {
+        name: String,
+        value: String,
+        price: { type: Number, required: true },
+        stock: { type: Number, required: true },
+        image: String,
+      },
+    ],
+    shipping: {
+      weight: { type: Number, required: true },
+      parcelSize: {
+        length: { type: Number, required: true },
+        width: { type: Number, required: true },
+        height: { type: Number, required: true },
+      },
+      shippingUnit: {
+        type: Array,
+        default: ["Express"],
+        required: true,
+      },
     },
     //additional
     ratingsAverage: {
@@ -47,10 +98,6 @@ const productSchema = new Schema(
       min: [1, "Rating must be above 1"],
       max: [5, "Rating must be under 5"],
       set: (val) => Math.round(val * 10) / 10,
-    },
-    variations: {
-      type: Array,
-      default: [],
     },
     isDraft: {
       type: Boolean,
@@ -74,37 +121,31 @@ productSchema.index({ name: "text", description: "text" });
 
 //Document middleware: run before .save() method and .create() method
 productSchema.pre("save", function (next) {
+  //add quantity, minPrice, maxPrice to product
+  console.log(this.attributes);
+  let minPrice = this.variations[0].price,
+    maxPrice = 0;
+  const quantity = this.variations.reduce((accumulator, item) => {
+    console.log(item.stock);
+    return accumulator + item.stock;
+  }, 0);
+
+  console.log("quantity: " + quantity);
+
+  this.variations.forEach((item) => {
+    if (item.price < minPrice) {
+      minPrice = item.price;
+    }
+    if (item.price > maxPrice) {
+      maxPrice = item.price;
+    }
+  });
+  this.quantity = quantity;
+  this.minPrice = minPrice;
+  this.maxPrice = maxPrice;
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
-const clothingSchema = new Schema(
-  {
-    brand: { type: String, required: true },
-    size: String,
-    material: String,
-  },
-  {
-    collection: "clothes",
-    timestamps: true,
-  }
-);
-
-const electronicSchema = new Schema(
-  {
-    manufacturer: { type: String, required: true },
-    model: String,
-    color: String,
-  },
-  {
-    collection: "electronic",
-    timestamps: true,
-  }
-);
-
 //Export the model
-module.exports = {
-  product: model(DOCUMENT_NAME, productSchema),
-  clothing: model("Clothing", clothingSchema),
-  electronic: model("Electronic", electronicSchema),
-};
+module.exports = model(DOCUMENT_NAME, productSchema);

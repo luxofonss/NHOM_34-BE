@@ -2,6 +2,7 @@
 
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const { cart } = require('../models/cart.model');
+
 const { getProductById } = require("../models/repositories/product.repo");
 /*
     Key features: Cart Services
@@ -14,7 +15,6 @@ const { getProductById } = require("../models/repositories/product.repo");
 */
 
 class CartService {
-
     //Start repo cart
     static async createUserCart({userId, product}) {
         const query = { cartUserId: userId, cartState: 'active'},
