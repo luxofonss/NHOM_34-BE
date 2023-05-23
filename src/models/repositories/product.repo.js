@@ -116,7 +116,8 @@ const unpublishProductByShop = async ({ shop, productId }) => {
 const getProductById = async (productId) => {
   return await product
     .findOne({ _id: convertToObjectIdMongodb(productId) })
-    .lean();
+    .lean()
+    .exec();
 };
 
 module.exports = {

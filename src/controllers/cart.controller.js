@@ -15,7 +15,7 @@ class CartController {
     update = async(req, res, next) => {
         new SuccessResponse( {
             message: 'Create a new Cart success',
-            metadata: await CartService.addtoCartV2(req.body)
+            metadata: await CartService.addToCartV2(req.body)
         }).send(res)
     }
 //delete

@@ -22,7 +22,7 @@ class CartService {
         },
       },
       options = { upsert: true, new: true };
-    return await cart.findOneAndUpdate(query, updateOrInsert, options);
+    return await cart.findOneAndUpdate(query, updateOrInsert, options).exec();
   }
 
   static async updateUserCart({ userId, product }) {
@@ -39,11 +39,11 @@ class CartService {
         },
       },
       options = { upsert: true, new: true };
-    return await cart.findOneAndUpdate(query, updateSet, options);
+    return await cart.findOneAndUpdate(query, updateSet, options).exec();
   }
 
   static async addtoCart({ userId, product = {} }) {
-    const userCart = await cart.findOne({ cart_userId: userId });
+    const userCart = await cart.findOne({ cart_userId: userId }).exec();
     if (!userCart) {
       //create a new cart
       return await CartService.createUserCart({ userId, product });
@@ -57,7 +57,7 @@ class CartService {
   }
 
   //update cart
-  static async addtoCartV2({ userId, shop_order_ids = {} }) {
+  static async addToCartV2({ userId, shop_order_ids = {} }) {
     const { productId, quantity, old_quantity } =
       shop_order_ids[0]?.item_products[0];
     //check product
@@ -89,7 +89,7 @@ class CartService {
         },
       };
 
-    const deleteCart = await cart.updateOne(query, updateSet);
+    const deleteCart = await cart.updateOne(query, updateSet).exec();
 
     return deleteCart;
   }
@@ -98,7 +98,8 @@ class CartService {
       .findOne({
         cart_userId: +userId,
       })
-      .lean();
+      .lean()
+      .exec();
   }
 }
 
