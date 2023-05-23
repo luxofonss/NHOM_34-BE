@@ -1,12 +1,12 @@
 "use strict";
 
-const { product, electronic, clothing } = require("../product.model");
+const product = require("../product.model");
 const { Types } = require("mongoose");
-<<<<<<< 1b123f062f4ad7f310bf7e173e7a908ee2ddba26
-const { getSelectData, getUnselectData } = require("../../utils/index");
-=======
-const { getSelectData, getUnselectData, convertToObjectIdMongodb } = require("../../utils/index");
->>>>>>> add cart service
+const {
+  getSelectData,
+  getUnselectData,
+  convertToObjectIdMongodb,
+} = require("../../utils/index");
 
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
@@ -53,6 +53,7 @@ const searchProducts = async ({ keywords }) => {
   const results = await product
     .find(
       {
+        isPublished: true,
         $text: { $search: regexSearch },
       },
       { score: { $meta: "textScore" } }
@@ -112,14 +113,12 @@ const unpublishProductByShop = async ({ shop, productId }) => {
   return modifiedCount;
 };
 
-<<<<<<< 1b123f062f4ad7f310bf7e173e7a908ee2ddba26
-=======
 const getProductById = async (productId) => {
-  return await product.findOne({ _id: convertToObjectIdMongodb(productId)}).lean();
-}
+  return await product
+    .findOne({ _id: convertToObjectIdMongodb(productId) })
+    .lean();
+};
 
-
->>>>>>> add cart service
 module.exports = {
   findOneProduct,
   findAllProducts,
@@ -129,8 +128,5 @@ module.exports = {
   unpublishProductByShop,
   searchProducts,
   updateProductById,
-<<<<<<< 1b123f062f4ad7f310bf7e173e7a908ee2ddba26
-=======
-  getProductById
->>>>>>> add cart service
+  getProductById,
 };

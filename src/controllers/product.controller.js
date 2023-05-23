@@ -8,7 +8,11 @@ class ProductController {
   static createProduct = async (req, res, next) => {
     new SuccessResponse({
       message: "Product created successfully!",
-      metadata: await ProductFactory.createProduct(req.body.type, req.body),
+      metadata: await ProductFactory.createProduct(
+        req.body.type,
+        req.user.userId,
+        req.body
+      ),
     }).send(res);
   };
 
@@ -65,6 +69,7 @@ class ProductController {
   };
 
   static findAllDraftForShop = async (req, res) => {
+    console.log("find all draft for shop");
     new SuccessResponse({
       message: "Find all draft for shop successfully!",
       metadata: await ProductFactory.findAllDraftForShop({

@@ -39,6 +39,13 @@ const userSchema = new Schema(
     avatar: {
       type: String,
     },
+    address: { type: Array, default: [] },
+    shopAttributes: {
+      description: { type: String, required: true },
+      address: { type: String, required: true },
+      // followers:
+      // rating
+    },
   },
   {
     timestamps: true,

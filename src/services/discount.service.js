@@ -67,9 +67,6 @@ class DiscountService {
     return newDiscount;
   }
 
-  //   static async updateDiscount() {}
-
-  //3. get all discount codes available of product
   static async getAllDiscountCodesWithProduct({
     shopId,
     code,
@@ -204,6 +201,31 @@ class DiscountService {
     });
 
     return deleted;
+  }
+
+  //user
+
+  // when user clicks on a discount card and save the discount code
+  static async userGetDiscount({ codeId, userId }) {
+    const foundDiscount = await findDiscount({
+      model: discountModel,
+      filter: {
+        _id: convertToObjectIdMongodb(codeId),
+      },
+    });
+
+    if (!foundDiscount) throw new NotFoundError("Discount not found!");
+
+    if (foundDiscount.userUsed.includes(userId))
+      throw new BadRequestError("You have already used this discount!");
+
+    await discountModel.findByIdAndUpdate(foundDiscount._id, {
+      $push: {
+        userUsed: userId,
+      },
+    });
+
+    return;
   }
 
   static async cancelDiscount({ codeId, shopId, userId }) {

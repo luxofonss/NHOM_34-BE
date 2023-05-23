@@ -1,7 +1,9 @@
 "use strict";
 
 const { BadRequestError } = require("../core/error.response");
-const { product, clothing, electronic } = require("../models/product.model");
+const product = require("../models/product.model");
+const mobile = require("../models/products/mobile.model");
+const tablet = require("../models/products/tablet.model");
 const { insertInventory } = require("../models/repositories/inventory.repo");
 const {
   findAllDraftForShop,
@@ -28,12 +30,12 @@ class ProductFactory {
     this.productRegistry[type] = classRef;
   }
 
-  static async createProduct(type, payload) {
+  static async createProduct(type, shopId, payload) {
     const productClass = ProductFactory.productRegistry[type];
     if (!productClass) {
       throw new BadRequestError(`invalid type ${type}`);
     }
-    return new productClass(payload).createProduct();
+    return new productClass(payload).createProduct(shopId);
   }
 
   //PATCH
@@ -70,11 +72,7 @@ class ProductFactory {
       sort,
       filter,
       page,
-<<<<<<< 1b123f062f4ad7f310bf7e173e7a908ee2ddba26
-      select: ["name", "description", "price", "thumb"],
-=======
       select: ["name", "description", "price", "thumb", "shop"],
->>>>>>> add cart service
     });
   }
 
@@ -98,31 +96,51 @@ class Product {
     name,
     description,
     thumb,
-    quantity,
-    type,
     price,
-    shop,
+    type,
+    condition,
+    preOrder,
+    brand,
+    manufacturerName,
+    manufacturerAddress,
+    manufactureDate,
+    variations,
+    shipping,
+    isDraft,
+    isPublished,
     attributes,
   }) {
     this.name = name;
     this.description = description;
     this.thumb = thumb;
-    this.quantity = quantity;
-    this.type = type;
     this.price = price;
-    this.shop = shop;
+    this.type = type;
+    this.condition = condition;
+    this.preOrder = preOrder;
+    this.brand = brand;
+    this.manufacturerName = manufacturerName;
+    this.manufacturerAddress = manufacturerAddress;
+    this.manufactureDate = manufactureDate;
+    this.variations = variations;
+    this.shipping = shipping;
+    this.isDraft = isDraft;
+    this.isPublished = isPublished;
     this.attributes = attributes;
   }
 
   //create new product
-  async createProduct(productId) {
-    const newProduct = await product.create({ ...this, _id: productId });
+  async createProduct(shopId, productId) {
+    const newProduct = await product.create({
+      ...this,
+      shop: shopId,
+      _id: productId,
+    });
     if (newProduct) {
       // add product stock to inventory
       await insertInventory({
         productId: newProduct._id,
-        shopId: this.shop,
-        stock: this.quantity,
+        shopId: shopId,
+        stock: newProduct.quantity,
       });
     }
     return newProduct;
@@ -134,39 +152,52 @@ class Product {
 }
 
 //define sub classes for different products
-class Clothing extends Product {
-  async createProduct() {
-    const newClothing = await clothing.create(this.attributes);
-    if (!newClothing) throw new BadRequestError("create new clothing error");
+// class Clothing extends Product {
+//   async createProduct() {
+//     const newClothing = await clothing.create(this.attributes);
+//     if (!newClothing) throw new BadRequestError("create new clothing error");
 
-    const newProduct = await super.createProduct(newClothing._id);
+//     const newProduct = await super.createProduct(newClothing._id);
+//     if (!newProduct) throw new BadRequestError("create new product error");
+
+//     return newProduct;
+//   }
+
+//   async updateProduct(productId) {
+//     //1. remove attr has null || undefined
+//     const objectParams = removeUndefinedObject(this);
+//     console.log("objectParams: ", objectParams);
+//     //2. check update field
+//     if (objectParams.attributes) {
+//       //update child
+//       await updateProductById({ productId, objectParams, model: clothing });
+//     }
+
+//     const updateProduct = await super.updateProduct(productId, objectParams);
+//     return updateProduct;
+//   }
+// }
+
+class Mobile extends Product {
+  async createProduct(shopId) {
+    const newMobile = await mobile.create(this.attributes);
+
+    if (!newMobile) throw new BadRequestError("create new mobile error");
+
+    const newProduct = await super.createProduct(shopId, newMobile._id);
     if (!newProduct) throw new BadRequestError("create new product error");
 
     return newProduct;
   }
-
-  async updateProduct(productId) {
-    //1. remove attr has null || undefined
-    const objectParams = removeUndefinedObject(this);
-    console.log("objectParams: ", objectParams);
-    //2. check update field
-    if (objectParams.attributes) {
-      //update child
-      await updateProductById({ productId, objectParams, model: clothing });
-    }
-
-    const updateProduct = await super.updateProduct(productId, objectParams);
-    return updateProduct;
-  }
 }
 
-class Electronic extends Product {
+class Tablet extends Product {
   async createProduct() {
-    const newElectronic = await electronic.create(this.attributes);
-    if (!newElectronic)
-      throw new BadRequestError("create new electronic error");
+    const newTablet = await tablet.create(this.attributes);
 
-    const newProduct = await super.createProduct(newElectronic._id);
+    if (!newTablet) throw new BadRequestError("create new tablet error");
+
+    const newProduct = await super.createProduct(newTablet._id);
     if (!newProduct) throw new BadRequestError("create new product error");
 
     return newProduct;
@@ -174,7 +205,9 @@ class Electronic extends Product {
 }
 
 // register product type
-ProductFactory.registerProductType("Electronic", Electronic);
-ProductFactory.registerProductType("Clothing", Clothing);
+// ProductFactory.registerProductType("Electronic", Electronic);
+// ProductFactory.registerProductType("Clothing", Clothing);
+ProductFactory.registerProductType("Mobile", Mobile);
+ProductFactory.registerProductType("Tablet", Tablet);
 
 module.exports = ProductFactory;

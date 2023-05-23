@@ -52,6 +52,26 @@ class DiscountController {
       }),
     }).send(res);
   };
+
+  static userGetDiscount = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Get discount successfully!",
+      metadata: await DiscountService.userGetDiscount({
+        codeId: req.params.id,
+        userId: req.user.userId,
+      }),
+    }).send(res);
+  };
+
+  static cancelDiscount = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Cancel discount successfully!",
+      metadata: await DiscountService.cancelDiscount({
+        ...req.params,
+        userId: req.user.userId,
+      }),
+    }).send(res);
+  };
 }
 
 module.exports = DiscountController;
