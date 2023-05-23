@@ -127,7 +127,8 @@ const checkProductByServer = async( products) => {
 }
   return await product
     .findOne({ _id: convertToObjectIdMongodb(productId) })
-    .lean();
+    .lean()
+    .exec();
 };
 
 
