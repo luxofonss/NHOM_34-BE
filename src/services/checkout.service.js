@@ -1,11 +1,11 @@
 'use strict'
 
 const { BadRequestError, NotFoundError } = require("../core/error.response");
-
-const {
-    findCartById
-} = require('../models/repositories/cart.repo');
+const { order } = require("../models/order.model")
+const { findCartById } = require('../models/repositories/cart.repo');
+const { getDiscountAmount } = require('./discount.service')
 const { checkProductByServer } = require("../models/repositories/product.repo");
+const { aquireLock, releaseLock } = require("./redis.service");
 
 class CheckoutService {
 
@@ -74,6 +74,69 @@ class CheckoutService {
             shopOrderIdsNew,
             checkoutOrder
         }
+    }
+
+
+    static async orderByUser( {
+        shopOrderIds, 
+        cartId,
+        userId,
+        userAddress = {},
+        userPayment = {},
+    }) {
+        const {shopOrderIdsNew, checkoutOrder } = await CheckoutService.checkoutReview( {
+            cartId,
+            userId,
+            shopOrderIds,
+        })
+
+        //check lai
+        const products = shopOrderIdsNew.flatMap( order => order.itemProducts)
+        console.log(`[1]:`, products)
+        const acquireProduct = []
+        for(let i = 0; i< products.length; i++) {
+            const { productId, quantity } = products[i];
+            const keyLock = await aquireLock(productId, quantity, cartId)
+            acquireProduct.push(keyLock ? true : false)
+            if(keyLock) {
+                await releaseLock(keyLock)
+            }
+        }
+
+
+        //check neu co mot san pham het hang
+        if(acquireProduct.includes(false)) {
+            throw new BadRequestError('Mot so san pham da duoc cap nhat, vui long quay lai gio hang..')
+        }
+        const newOrder = await order.create({
+            orderUserId: userId,
+            orderCheckout: checkoutOrder,
+            orderShipping: userAddress,
+            orderPayment: userPayment,
+            orderProducts: shopOrderIdsNew 
+        })
+
+        //neu insert thanh cong, remove product khoi cart
+        if(newOrder) {
+
+        }
+        return newOrder
+    }
+
+    static async getOrderByUser() {
+
+    }
+
+    static async getOneOrderByUser() {
+        
+    }
+
+    static async cancelOrderByUser() {
+        
+    }
+
+    static async updateOrderStatusByShop() {
+        
     }
 }
 
