@@ -125,10 +125,10 @@ productSchema.pre("save", function (next) {
   console.log(this.attributes);
   let minPrice = this.variations[0].price,
     maxPrice = 0;
-  const quantity = this.variations.reduce((accumulator, item) => {
-    console.log(item.stock);
-    return accumulator + item.stock;
-  }, 0);
+  const quantity = this.variations.reduce(
+    (accumulator, item) => accumulator + item.stock,
+    0
+  );
 
   console.log("quantity: " + quantity);
 

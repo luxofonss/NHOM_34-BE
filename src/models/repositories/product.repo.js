@@ -2,7 +2,11 @@
 
 const product = require("../product.model");
 const { Types } = require("mongoose");
-const { getSelectData, getUnselectData, convertToObjectIdMongodb } = require("../../utils/index");
+const {
+  getSelectData,
+  getUnselectData,
+  convertToObjectIdMongodb,
+} = require("../../utils/index");
 
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
@@ -24,7 +28,7 @@ const findOneProduct = async ({ productId, unSelect }) => {
 
 const findAllProducts = async ({ limit, page, filter, sort, select }) => {
   const skip = limit * (page - 1);
-  const sortBy = sort === "ctime" ? { _id: -1 } : { id: 1 };
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
   const products = await product
     .find(filter)
     .sort(sortBy)
@@ -131,6 +135,20 @@ const checkProductByServer = async( products) => {
     .exec();
 };
 
+const checkProductByServer = async (products) => {
+  return await Promise.all(
+    products.map(async (product) => {
+      const foundProduct = await getProductById(product.productId);
+      if (foundProduct) {
+        return {
+          price: foundProduct.price,
+          quantity: product.quantity,
+          productId: product.productId,
+        };
+      }
+    })
+  );
+};
 
 module.exports = {
   findOneProduct,
@@ -142,5 +160,5 @@ module.exports = {
   searchProducts,
   updateProductById,
   getProductById,
-  checkProductByServer
+  checkProductByServer,
 };

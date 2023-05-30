@@ -1,41 +1,41 @@
+"use strict";
 
-'use strict'
+const { model, Schema } = require("mongoose");
 
-const { model, Schema } = require('mongoose')
-
-const DOCUMENT_NAME = "Cart"
-const COLLECTION_NAME = 'Carts'
+const DOCUMENT_NAME = "Cart";
+const COLLECTION_NAME = "carts";
 
 const cartSchema = new Schema(
-    {
-    cartState: {
-        type: String, 
-        required: true,
-        enum: ['active', 'completed', 'failed', 'pending'],
-        default: 'active',
+  {
+    status: {
+      type: String,
+      required: true,
+      enum: ["active", "completed", "failed", "pending"],
+      default: "active",
     },
-    cartProducts: {
-        type: Array,
-        required: true,
-        default: []
+    products: {
+      type: Array,
+      required: true,
+      default: [],
     },
-    cartCountProduct: {
-        type: Number, 
-        default: 0
+    productCount: {
+      type: Number,
+      default: 0,
     },
-    cartUserId: {
-        type: Number, 
-        required: true
-    }
-}, {
+    userId: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
     collection: COLLECTION_NAME,
     timestamps: {
-        createdAt:'createdOn',
-        updatedAt:'modifiedOn',
-    }
-}
-)
+      createdAt: "createdOn",
+      updatedAt: "modifiedOn",
+    },
+  }
+);
 
 module.exports = {
-    cart: model(DOCUMENT_NAME, cartSchema)
-}
+  cart: model(DOCUMENT_NAME, cartSchema),
+};
