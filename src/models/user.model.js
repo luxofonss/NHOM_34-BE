@@ -29,6 +29,10 @@ const userSchema = new Schema(
       type: Array,
       default: [],
     },
+    isShop: {
+      type: Boolean,
+      default: false,
+    },
     oauthService: {
       type: String,
       enum: ["Google", "Local", "Facebook"],
@@ -40,9 +44,9 @@ const userSchema = new Schema(
       type: String,
     },
     address: { type: Array, default: [] },
-    shopAttributes: {
-      description: { type: String, required: true },
-      address: { type: String, required: true },
+    shopInfo: {
+      description: String,
+      address: String,
       // followers:
       // rating
     },

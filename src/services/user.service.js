@@ -1,6 +1,7 @@
 "use strict";
 
 const { USER_ROLE } = require("../constant");
+const { ForbiddenError, BadRequestError } = require("../core/error.response");
 const userModel = require("../models/user.model");
 
 const selectOptions = {
@@ -15,11 +16,7 @@ const selectOptions = {
 
 class UserService {
   static findByEmail = async ({ email, select = selectOptions }) => {
-    return await userModel
-      .findOne({ email: email })
-      .select(select)
-      .lean()
-      .exec();
+    return await userModel.findOne({ email }).select(select).lean().exec();
   };
 
   static findByUserId = async ({ userId, select = selectOptions }) => {
@@ -68,6 +65,17 @@ class UserService {
       })
       .select(select)
       .exec();
+  };
+
+  static registerUserAsShop = async ({ userId, shopInfo }) => {
+    const foundUser = await userModel.findById(userId).exec();
+    if (!foundUser) throw new ForbiddenError("Can not find your information.");
+
+    if (foundUser.isShop)
+      throw new BadRequestError("You have already registered as a shop");
+    foundUser.shopInfo = shopInfo;
+    foundUser.isShop = true;
+    return await foundUser.save();
   };
 }
 

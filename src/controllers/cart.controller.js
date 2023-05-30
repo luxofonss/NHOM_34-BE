@@ -12,14 +12,14 @@ class CartController {
     }
 
 //update 
-    update = async(req, res, next) => {
+    updateCart = async(req, res, next) => {
         new SuccessResponse( {
             message: 'update a new Cart success',
             metadata: await CartService.addToCartV2(req.body)
         }).send(res)
     }
 //delete
-    delete = async(req, res, next) => {
+    deleteCart = async(req, res, next) => {
         new SuccessResponse( {
             message: 'delete Cart success',
             metadata: await CartService.deleteUserCart(req.body)

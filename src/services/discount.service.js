@@ -123,6 +123,7 @@ class DiscountService {
   }
 
   static async getDiscountAmount({ codeId, userId, shopId, products }) {
+    console.log(codeId, shopId);
     const foundDiscount = await findDiscount({
       model: discountModel,
       filter: {
