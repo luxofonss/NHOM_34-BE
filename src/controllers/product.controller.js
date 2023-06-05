@@ -93,6 +93,24 @@ class ProductController {
       metadata: await ProductFactory.searchProducts(req.params),
     }).send(res);
   };
+
+  static filterProducts = async (req, res) => {
+    console.log("Filter Products");
+    console.log(req.body);
+    new SuccessResponse({
+      message: "Filter products successfully!",
+      metadata: await ProductFactory.filterProducts(req.body),
+    }).send(res);
+  };
+
+  static getProductAttributes = async (req, res) => {
+    new SuccessResponse({
+      message: "Get product attributes successfully!",
+      metadata: await ProductFactory.getProductAttributes({
+        type: req.query.type,
+      }),
+    }).send(res);
+  };
 }
 
 module.exports = ProductController;

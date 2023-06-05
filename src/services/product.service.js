@@ -1,5 +1,6 @@
 "use strict";
 
+const { productAttribute } = require("../constant/productAttributes");
 const { BadRequestError } = require("../core/error.response");
 const product = require("../models/product.model");
 const mobile = require("../models/products/mobile.model");
@@ -15,7 +16,7 @@ const {
   findOneProduct,
   updateProductById,
 } = require("../models/repositories/product.repo");
-const { removeUndefinedObject } = require("../utils");
+const { removeUndefinedObject, getAcceptArray } = require("../utils");
 
 // define Factory class to create products
 class ProductFactory {
@@ -26,12 +27,12 @@ class ProductFactory {
 
   static productRegistry = {};
 
-  static registerProductType(type, classRef) {
-    this.productRegistry[type] = classRef;
+  static registerProductType(type, classRef, model) {
+    this.productRegistry[type] = { classRef, model: model };
   }
 
   static async createProduct(type, shopId, payload) {
-    const productClass = ProductFactory.productRegistry[type];
+    const productClass = ProductFactory.productRegistry[type].classRef;
     if (!productClass) {
       throw new BadRequestError(`invalid type ${type}`);
     }
@@ -40,10 +41,11 @@ class ProductFactory {
 
   //PATCH
   static async updateProduct(type, productId, payload) {
-    const productClass = ProductFactory.productRegistry[type];
+    const productClass = ProductFactory.productRegistry[type].classRef;
     if (!productClass) {
       throw new BadRequestError(`invalid type ${type}`);
     }
+
     return new productClass(payload).updateProduct(productId);
   }
 
@@ -88,6 +90,38 @@ class ProductFactory {
 
   static async searchProducts({ keywords }) {
     return await searchProducts({ keywords });
+  }
+
+  static async filterProducts({
+    limit = 50,
+    page = 1,
+    filter = {},
+    price = { start: 0, end: 10e9 },
+    sort = "ctime",
+  }) {
+    return await findAllProducts({
+      limit,
+      sort,
+      filter: { ...filter, isPublished: true },
+      page,
+      select: ["name", "thumb", "description", "price", "thumb", "shop"],
+    });
+  }
+
+  static async getProductAttributes({ type }) {
+    const productClass = ProductFactory.productRegistry[type].classRef;
+    if (!productClass) {
+      throw new BadRequestError(`invalid type ${type}`);
+    }
+    const prodModel = ProductFactory.productRegistry[type].model;
+    console.log("test");
+    let attributes = [];
+    prodModel.schema.eachPath(function (path) {
+      console.log(productAttribute.get(path));
+      attributes.push(productAttribute.get(path));
+    });
+
+    return getAcceptArray(attributes, ["createdAt", "updatedAt", "_id", "__v"]);
   }
 }
 // define base product class
@@ -189,6 +223,18 @@ class Mobile extends Product {
 
     return newProduct;
   }
+
+  async getProductAttributes() {
+    console.log("test");
+    const attributes = [];
+    mobile.schema.eachPath(function (path) {
+      console.log(path);
+      attributes.push(path);
+      console.log(path);
+    });
+
+    return attributes;
+  }
 }
 
 class Tablet extends Product {
@@ -202,12 +248,22 @@ class Tablet extends Product {
 
     return newProduct;
   }
+
+  async getProductAttributes() {
+    const attributes = [];
+    tablet.schema.eachPath(function (path) {
+      attributes.push(path);
+      console.log(path);
+    });
+
+    return attributes;
+  }
 }
 
 // register product type
 // ProductFactory.registerProductType("Electronic", Electronic);
 // ProductFactory.registerProductType("Clothing", Clothing);
-ProductFactory.registerProductType("Mobile", Mobile);
-ProductFactory.registerProductType("Tablet", Tablet);
+ProductFactory.registerProductType("Mobile", Mobile, mobile);
+ProductFactory.registerProductType("Tablet", Tablet, tablet);
 
 module.exports = ProductFactory;

@@ -35,7 +35,11 @@ app.use(
 );
 //cors
 
-const whitelist = ["http://localhost:3003", "http://127.0.0.1:3003"]; //white list consumers
+const whitelist = [
+  "http://localhost:3003",
+  "http://127.0.0.1:3003",
+  "http://127.0.0.1:5500",
+]; //white list consumers
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -73,7 +77,6 @@ app.use(cookieParser());
 
 // init database
 require("./database/init.mongodb");
-
 
 // passport.js
 require("./auth/passport");
