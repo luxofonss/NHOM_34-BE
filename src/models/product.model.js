@@ -18,19 +18,15 @@ const productSchema = new Schema(
       required: true,
     },
     slug: String,
-    thumb: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
+    thumb: [
+      {
+        type: String,
+      },
+    ],
     quantity: Number,
-    type: {
-      type: String,
+    typeId: {
+      type: Types.ObjectId,
       required: true,
-      enum: ["Mobile", "Tablet"],
     },
     condition: {
       type: Number,
@@ -66,18 +62,10 @@ const productSchema = new Schema(
       type: Date,
     },
     attributes: {
-      type: Schema.Types.Mixed,
+      type: Schema.Types.ObjectId,
       required: true,
     },
-    variations: [
-      {
-        name: String,
-        value: String,
-        price: { type: Number, required: true },
-        stock: { type: Number, required: true },
-        image: String,
-      },
-    ],
+    variations: [Schema.Types.ObjectId],
     shipping: {
       weight: { type: Number, required: true },
       parcelSize: {
@@ -123,21 +111,29 @@ productSchema.index({ name: "text", description: "text" });
 productSchema.pre("save", function (next) {
   //add quantity, minPrice, maxPrice to product
   console.log(this.attributes);
-  let minPrice = this.variations[0].price,
+  let minPrice = 10e9,
     maxPrice = 0;
-  const quantity = this.variations.reduce(
-    (accumulator, item) => accumulator + item.stock,
-    0
-  );
-
-  console.log("quantity: " + quantity);
+  let quantity = 0;
 
   this.variations.forEach((item) => {
-    if (item.price < minPrice) {
-      minPrice = item.price;
-    }
-    if (item.price > maxPrice) {
-      maxPrice = item.price;
+    if (!item.children) {
+      quantity += item.stock;
+      if (item.price < minPrice) {
+        minPrice = item.price;
+      }
+      if (item.price > maxPrice) {
+        maxPrice = item.price;
+      }
+    } else {
+      item.children.forEach((subItem) => {
+        quantity += subItem.stock;
+        if (subItem.price < minPrice) {
+          minPrice = subItem.price;
+        }
+        if (subItem.price > maxPrice) {
+          maxPrice = subItem.price;
+        }
+      });
     }
   });
   this.quantity = quantity;

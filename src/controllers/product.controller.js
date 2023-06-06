@@ -9,7 +9,7 @@ class ProductController {
     new SuccessResponse({
       message: "Product created successfully!",
       metadata: await ProductFactory.createProduct(
-        req.body.type,
+        req.files,
         req.user.userId,
         req.body
       ),
@@ -91,6 +91,24 @@ class ProductController {
     new SuccessResponse({
       message: "Search products successfully!",
       metadata: await ProductFactory.searchProducts(req.params),
+    }).send(res);
+  };
+
+  static filterProducts = async (req, res) => {
+    console.log("Filter Products");
+    console.log(req.body);
+    new SuccessResponse({
+      message: "Filter products successfully!",
+      metadata: await ProductFactory.filterProducts(req.body),
+    }).send(res);
+  };
+
+  static getProductAttributes = async (req, res) => {
+    new SuccessResponse({
+      message: "Get product attributes successfully!",
+      metadata: await ProductFactory.getProductAttributes({
+        type: req.query.type,
+      }),
     }).send(res);
   };
 }

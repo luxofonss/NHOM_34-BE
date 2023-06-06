@@ -22,10 +22,21 @@ const COOKIE_OPTIONS = {
   expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
 };
 
+const FIREBASE_CONFIGURATION = {
+  apiKey: process.env.FBS_API_KEY,
+  authDomain: process.env.FBS_AUTH_DOMAIN,
+  projectId: process.env.FBS_PROJECT_ID,
+  storageBucket: process.env.FBS_STORAGE_BUCKET,
+  messagingSenderId: process.env.FBS_MESSAGING_SENDER_ID,
+  appId: process.env.FBS_APP_ID,
+  measurementId: process.env.FBS_MEASUREMENT_ID,
+};
+
 module.exports = {
   USER_ROLE,
   HEADER,
   ACCESS_TOKEN_EXPIRATION,
   REFRESH_TOKEN_EXPIRATION,
   COOKIE_OPTIONS,
+  FIREBASE_CONFIGURATION,
 };

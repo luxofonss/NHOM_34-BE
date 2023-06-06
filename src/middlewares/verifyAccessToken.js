@@ -18,9 +18,11 @@ const verifyAccessToken = async (req, res, next) => {
   const keyStore = await KeyStoreService.findByUserId(userId);
   if (!keyStore) throw new AuthFailureError("Invalid request");
 
+  const authorizationHeader = req.headers[HEADER.AUTHORIZATION];
   const accessToken = req.headers[HEADER.AUTHORIZATION].split(" ")[1];
+  console.log("accessToken: ", accessToken);
   // check bearer token
-  if (!accessToken.startswith("Bearer "))
+  if (!authorizationHeader.startsWith("Bearer"))
     throw new AuthFailureError("Unauthorized");
 
   // check access token

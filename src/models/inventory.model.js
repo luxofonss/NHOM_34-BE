@@ -7,29 +7,19 @@ const COLLECTION_NAME = "inventories";
 // Declare the Schema of the Mongo model
 const inventorySchema = new Schema(
   {
-    shopId: {
-      type: Types.ObjectId,
-      required: true,
-      ref: "User",
-    },
     productId: {
       type: Types.ObjectId,
       required: true,
       ref: "Product",
     },
-    location: {
-      type: String,
-      default: "unKnown",
-    },
-    stock: {
-      type: Number,
-      required: true,
-    },
-    // dat hang truoc
-    reservations: {
-      type: Array,
-      default: [],
-    },
+    variation1: { type: String, required: true },
+    variation1Value: { type: String, required: true },
+    variation2: String,
+    variation2Value: String,
+    isSingle: { type: Boolean, default: true },
+    thumb: String,
+    price: Number,
+    stock: Number,
   },
   {
     timestamps: true,

@@ -2,6 +2,19 @@
 
 const { Types } = require("mongoose");
 
+const getAcceptArray = (source, unAccept) => {
+  let newArr = [];
+  console.log("unAccept: ", unAccept);
+  source.forEach((e) => {
+    console.log("test: ", e, unAccept.includes(e));
+    if (!unAccept.includes(e)) {
+      newArr.push(e);
+    }
+  });
+
+  return newArr;
+};
+
 const getSelectData = (select = []) => {
   return Object.fromEntries(select.map((el) => [el, 1]));
 };
@@ -29,4 +42,5 @@ module.exports = {
   getUnselectData,
   removeUndefinedObject,
   convertToObjectIdMongodb,
+  getAcceptArray,
 };

@@ -16,7 +16,6 @@ passport.use(
       prompt: "consent",
     },
     async function (req, accessToken, refreshToken, profile, cb) {
-      console.log("profile", profile);
       const defaultUser = {
         fullName: `${profile.name.givenName} ${profile.name.familyName} `,
         email: profile.emails[0].value,
@@ -30,6 +29,7 @@ passport.use(
       );
 
       if (user) {
+        req.user = user;
         return cb(null, user);
       }
 

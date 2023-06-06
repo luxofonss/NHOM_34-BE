@@ -51,20 +51,21 @@ class CartService {
     if (!userCart.products.length) {
       userCart.products = [product];
       return await userCart.save();
-    return CartService.updateUserCart({ userId, product });
-  }
-    
-    static async addToCartV2({ userId, shop_order_ids = {} }) {
-    const { productId, quantity, old_quantity } =
-    shop_order_ids[0]?.item_products[0];
-    //check product
-    const foundProduct = await getProductById(productId);
-    if (!foundProduct) throw new NotFoundError("");
-    //compare
-    if (foundProduct.product_shop.toString() !== shop_order_ids[0].shopId) {
-      throw new NotFoundError("Product do not belong to the shop");
-
+      return CartService.updateUserCart({ userId, product });
     }
+  }
+
+  // static async addToCartV2({ userId, shop_order_ids = {} }) {
+  // const { productId, quantity, old_quantity } =
+  // shop_order_ids[0]?.item_products[0];
+  // //check product
+  // const foundProduct = await getProductById(productId);
+  // if (!foundProduct) throw new NotFoundError("");
+  // //compare
+  // if (foundProduct.product_shop.toString() !== shop_order_ids[0].shopId) {
+  //   throw new NotFoundError("Product do not belong to the shop");
+
+  // }
 
   //update cart
   static async addToCartV2({ userId, shop_order_ids = {} }) {
@@ -104,7 +105,7 @@ class CartService {
     const deleteCart = await cart.updateOne(query, updateSet).exec();
     return deleteCart;
   }
-      
+
   static async getListUserCart({ userId, productId }) {
     return await cart
       .findOne({
@@ -113,7 +114,6 @@ class CartService {
       .lean()
       .exec();
   }
-
 }
 
 module.exports = CartService;
