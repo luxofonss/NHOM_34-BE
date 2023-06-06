@@ -1,10 +1,11 @@
 "use strict";
 
 const { productAttribute } = require("../constant/productAttributes");
-const { BadRequestError } = require("../core/error.response");
+const { BadRequestError, NotFoundError } = require("../core/error.response");
 const product = require("../models/product.model");
 const mobile = require("../models/products/mobile.model");
 const tablet = require("../models/products/tablet.model");
+const UploadService = require("../services/upload.service");
 const { insertInventory } = require("../models/repositories/inventory.repo");
 const {
   findAllDraftForShop,
@@ -15,8 +16,14 @@ const {
   findAllProducts,
   findOneProduct,
   updateProductById,
+  addVariationToProduct,
 } = require("../models/repositories/product.repo");
-const { removeUndefinedObject, getAcceptArray } = require("../utils");
+const {
+  removeUndefinedObject,
+  getAcceptArray,
+  convertToObjectIdMongodb,
+} = require("../utils");
+const CategoryService = require("./category.service");
 
 // define Factory class to create products
 class ProductFactory {
@@ -31,12 +38,25 @@ class ProductFactory {
     this.productRegistry[type] = { classRef, model: model };
   }
 
-  static async createProduct(type, shopId, payload) {
-    const productClass = ProductFactory.productRegistry[type].classRef;
-    if (!productClass) {
-      throw new BadRequestError(`invalid type ${type}`);
+  static async createProduct(files, shopId, payload) {
+    const typeId = payload.typeId;
+
+    const hasCategory = await CategoryService.getCategoryBySubCategoryId(
+      typeId
+    );
+
+    if (!hasCategory) {
+      throw new NotFoundError("Category not found, please try again!");
     }
-    return new productClass(payload).createProduct(shopId);
+
+    const className = hasCategory.subTypes[0].classRef;
+    console.log("className", className);
+
+    const productClass = ProductFactory.productRegistry[className].classRef;
+    if (!productClass) {
+      throw new BadRequestError(`invalid type ${className}`);
+    }
+    return new productClass({ ...payload, files: files }).createProduct(shopId);
   }
 
   //PATCH
@@ -130,8 +150,7 @@ class Product {
     name,
     description,
     thumb,
-    price,
-    type,
+    typeId,
     condition,
     preOrder,
     brand,
@@ -143,12 +162,12 @@ class Product {
     isDraft,
     isPublished,
     attributes,
+    files,
   }) {
     this.name = name;
     this.description = description;
     this.thumb = thumb;
-    this.price = price;
-    this.type = type;
+    this.typeId = typeId;
     this.condition = condition;
     this.preOrder = preOrder;
     this.brand = brand;
@@ -160,23 +179,97 @@ class Product {
     this.isDraft = isDraft;
     this.isPublished = isPublished;
     this.attributes = attributes;
+    this.files = files;
   }
 
   //create new product
   async createProduct(shopId, productId) {
+    console.log("in files: ", this.files);
+
+    let productThumbs = [];
+    await Promise.all(
+      this.files.map(async (file) => {
+        console.log("file: ", file);
+        if (file.fieldname === "thumb") {
+          let url = await UploadService.uploadSingleImage(file);
+          console.log("url: " + url);
+          productThumbs.push(url);
+        }
+      })
+    );
+
+    console.log("productThumbs:: ", productThumbs);
+
+    const productAttributes = {
+      name: this.name,
+      description: this.description,
+      typeId: this.typeId,
+      condition: this.condition,
+      preOrder: this.preOrder,
+      brand: this.brand,
+      manufacturerName: this.manufacturerName,
+      manufacturerAddress: this.manufacturerAddress,
+      manufactureDate: this.manufactureDate,
+      shipping: this.shipping,
+      isDraft: this.isDraft,
+      thumb: productThumbs,
+      isPublished: this.isPublished,
+      attributes: productId,
+    };
     const newProduct = await product.create({
-      ...this,
+      ...productAttributes,
       shop: shopId,
       _id: productId,
     });
     if (newProduct) {
-      // add product stock to inventory
-      await insertInventory({
-        productId: newProduct._id,
-        shopId: shopId,
-        stock: newProduct.quantity,
-      });
+      await Promise.all(
+        this.variations.map(async (variation, index) => {
+          let variationThumb;
+          this.files.map(async (file) => {
+            if (file.fieldname === `variation[${index}.thumb]`) {
+              variationThumb = await UploadService.uploadSingleImage(file);
+            }
+          });
+
+          if (variation.children) {
+            await Promise.all(
+              variation.children.map(async (subVariation) => {
+                const newVariation = await insertInventory({
+                  productId: newProduct._id,
+                  variation1: variation.name,
+                  variation1Value: variation.value,
+                  variation2: subVariation.name,
+                  variation2Value: subVariation.value,
+                  stock: subVariation.stock,
+                  price: subVariation.price,
+                  thumb: variation.thumb,
+                  isSingle: false,
+                });
+
+                await addVariationToProduct({
+                  id: newProduct._id,
+                  variation: convertToObjectIdMongodb(newVariation._id),
+                });
+              })
+            );
+          } else {
+            const newVariation = await insertInventory({
+              productId: newProduct._id,
+              variation1: variation.name,
+              variation1Value: variation.value,
+              stock: variation.stock,
+              price: variation.price,
+              thumb: variation.thumb,
+            });
+            await addVariationToProduct({
+              id: newProduct._id,
+              variation: convertToObjectIdMongodb(newVariation._id),
+            });
+          }
+        })
+      );
     }
+
     return newProduct;
   }
 

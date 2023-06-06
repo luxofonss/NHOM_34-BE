@@ -9,7 +9,7 @@ class ProductController {
     new SuccessResponse({
       message: "Product created successfully!",
       metadata: await ProductFactory.createProduct(
-        req.body.type,
+        req.files,
         req.user.userId,
         req.body
       ),

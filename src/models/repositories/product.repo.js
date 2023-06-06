@@ -115,26 +115,28 @@ const unpublishProductByShop = async ({ shop, productId }) => {
 };
 
 const getProductById = async (productId) => {
-  return await product.findOne({ _id: convertToObjectIdMongodb(productId)}).lean();
-}
-
-const checkProductByServer = async( products) => {
-  return await Promise.all( products.map( async product=> {
-    const foundProduct = await getProductById(product.productId)
-    if(foundProduct) {
-      return {
-        price: foundProduct.productPrice,
-        quantity: product.quantity,
-        productId: product.productId
-      }
-    }
-  }))
-}
   return await product
     .findOne({ _id: convertToObjectIdMongodb(productId) })
-    .lean()
-    .exec();
+    .lean();
 };
+
+// const checkProductByServer = async( products) => {
+//   return await Promise.all( products.map( async product=> {
+//     const foundProduct = await getProductById(product.productId)
+//     if(foundProduct) {
+//       return {
+//         price: foundProduct.productPrice,
+//         quantity: product.quantity,
+//         productId: product.productId
+//       }
+//     }
+//   }))
+// }
+//   return await product
+//     .findOne({ _id: convertToObjectIdMongodb(productId) })
+//     .lean()
+//     .exec();
+// };
 
 const checkProductByServer = async (products) => {
   return await Promise.all(
@@ -151,6 +153,17 @@ const checkProductByServer = async (products) => {
   );
 };
 
+const addVariationToProduct = async ({ id, variation }) => {
+  return await product
+    .findOneAndUpdate(
+      { _id: convertToObjectIdMongodb(id) },
+      {
+        $push: { variations: variation },
+      }
+    )
+    .exec();
+};
+
 module.exports = {
   findOneProduct,
   findAllProducts,
@@ -162,4 +175,5 @@ module.exports = {
   updateProductById,
   getProductById,
   checkProductByServer,
+  addVariationToProduct,
 };

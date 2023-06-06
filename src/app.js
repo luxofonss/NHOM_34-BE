@@ -8,7 +8,11 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const cookieSession = require("cookie-session");
 const app = express();
+const multer = require("multer");
+
 require("dotenv").config();
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 // init middleware
 app.use(morgan("dev"));

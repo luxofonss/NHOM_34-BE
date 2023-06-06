@@ -4,6 +4,8 @@ const productController = require("../../controllers/product.controller");
 const router = express.Router();
 const asyncHandler = require("../../helpers/asyncHandler");
 const { authentication } = require("../../auth/authUtils");
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.get("/attributes", asyncHandler(productController.getProductAttributes));
 router.get("/filter", asyncHandler(productController.filterProducts));
@@ -15,7 +17,11 @@ router.get("/:productId", asyncHandler(productController.findOneProduct));
 router.use(authentication);
 
 //post
-router.post("", asyncHandler(productController.createProduct));
+router.post("", [
+  // upload.single("thumb"),
+  upload.any(),
+  asyncHandler(productController.createProduct),
+]);
 router.post(
   "/publish/:id",
   asyncHandler(productController.publishProductByShop)

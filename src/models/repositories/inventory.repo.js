@@ -1,20 +1,37 @@
 "use strict";
 
+const { ErrorResponse } = require("../../core/error.response");
+const { convertToObjectIdMongodb } = require("../../utils");
 const inventory = require("../inventory.model");
 const { Types } = require("mongoose");
 
 const insertInventory = async ({
   productId,
-  shopId,
+  variation1,
+  variation1Value,
+  variation2,
+  variation2Value,
   stock,
-  location = "unKnown",
+  price,
+  thumb,
+  isSingle = true,
 }) => {
-  return await inventory.create({
-    productId: productId,
-    shopId: shopId,
-    stock: stock,
-    location: location,
+  const newInventory = await inventory.create({
+    productId: convertToObjectIdMongodb(productId),
+    variation1,
+    variation1Value,
+    variation2,
+    variation2Value,
+    stock,
+    price,
+    thumb,
+    isSingle,
   });
+
+  if (newInventory) return newInventory;
+  else throw new ErrorResponse("Something went wrong!");
 };
 
-module.exports = { insertInventory };
+module.exports = {
+  insertInventory,
+};
