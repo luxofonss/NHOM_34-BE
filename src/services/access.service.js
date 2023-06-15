@@ -263,6 +263,10 @@ class AccessService {
       }),
     };
   };
+
+  static oauthSuccess = async ()=> {
+    
+  }
 }
 
 module.exports = AccessService;

@@ -59,7 +59,7 @@ class ProductFactory {
   }
 
   //PATCH
-  static async updateProduct(typeId, productId, payload) {
+  static async updateProduct(type, productId, payload) {
     const productClass = ProductFactory.productRegistry[type].classRef;
     if (!productClass) {
       throw new BadRequestError(`invalid type ${type}`);

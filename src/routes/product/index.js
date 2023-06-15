@@ -14,7 +14,11 @@ router.get("", asyncHandler(productController.findAllProducts));
 router.get("/:productId", asyncHandler(productController.findOneProduct));
 
 //need authentication
+<<<<<<< HEAD
 router.use(asyncHandler(authentication));
+=======
+router.use(authentication);
+>>>>>>> be2de090be868a58ec0ca237db53f79888beb512
 
 //post
 router.post("", [
