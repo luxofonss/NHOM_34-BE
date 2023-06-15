@@ -6,9 +6,12 @@ const { Ok, Created, SuccessResponse } = require("../core/success.response");
 class ProductController {
   //POST
   static createProduct = async (req, res, next) => {
+    console.log("file: ", req.files);
+    console.log("body: ", req.body);
     new SuccessResponse({
       message: "Product created successfully!",
       metadata: await ProductFactory.createProduct(
+        req.body.typeId,
         req.files,
         req.user.userId,
         req.body
@@ -41,7 +44,7 @@ class ProductController {
     new SuccessResponse({
       message: "Update product successfully!",
       metadata: await ProductFactory.updateProduct(
-        req.body.type,
+        req.body.typeId,
         req.params.productId,
         {
           ...req.body,
@@ -65,6 +68,21 @@ class ProductController {
     new SuccessResponse({
       message: "Find all products successfully!",
       metadata: await ProductFactory.findAllProducts(req.query),
+    }).send(res);
+  };
+
+  static findAllProductsForShop = async (req, res) => {
+    console.log("query: ", req.query);
+    new SuccessResponse({
+      message: "Find all products successfully!",
+      metadata: await ProductFactory.findAllProductsForShop({
+        stock: req.query.stock,
+        sold: req.query.sold,
+        limit: req.query.pageSize,
+        page: req.query.page,
+        filter: JSON.parse(req.query.filter),
+        shop: req.user.userId,
+      }),
     }).send(res);
   };
 
@@ -107,7 +125,7 @@ class ProductController {
     new SuccessResponse({
       message: "Get product attributes successfully!",
       metadata: await ProductFactory.getProductAttributes({
-        type: req.query.type,
+        typeId: req.query.typeId,
       }),
     }).send(res);
   };

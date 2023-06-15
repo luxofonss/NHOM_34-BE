@@ -40,6 +40,74 @@ const findAllProducts = async ({ limit, page, filter, sort, select }) => {
   return products;
 };
 
+const findAllProductsForShop = async ({
+  stock,
+  sold,
+  limit,
+  page,
+  filter,
+  sort,
+  select,
+}) => {
+  const skip = limit * (page - 1);
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  const variationProjection = {
+    keyVariation: 1,
+    keyVariationValue: 1,
+    subVariation: 1,
+    subVariationValue: 1,
+    price: 1,
+    stock: 1,
+    isSingle: 1,
+    thumb: 1,
+  };
+
+  console.log("sold:: ", sold);
+  console.log("stock:: ", stock);
+  const productFitler = {
+    ...filter,
+    sold: {
+      $gte: sold?.min ? parseInt(sold?.min) : -1,
+      $lte: sold?.max ? parseInt(sold?.max) : 10e9,
+    },
+    stock: {
+      $gte: stock?.min ? parseInt(stock?.min) : -1,
+      $lte: stock?.max ? parseInt(stock?.max) : 10e9,
+    },
+  };
+  const [products, count] = await Promise.all([
+    product
+      .aggregate([
+        { $match: productFitler },
+        {
+          $lookup: {
+            from: "variation",
+            let: { variations: "$variations" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $in: ["$_id", "$$variations"] },
+                },
+              },
+              {
+                $project: variationProjection,
+              },
+            ],
+            as: "variations",
+          },
+        },
+        { $sort: sortBy },
+        { $skip: skip },
+        { $limit: limit },
+        { $project: getSelectData(select) },
+      ])
+      .exec(),
+    product.countDocuments(productFitler),
+  ]);
+
+  return { products, count };
+};
+
 const findAllDraftForShop = async ({ query, limit, skip }) => {
   return await queryProduct({ query, limit, skip });
 };
@@ -175,4 +243,5 @@ module.exports = {
   getProductById,
   checkProductByServer,
   addVariationToProduct,
+  findAllProductsForShop,
 };

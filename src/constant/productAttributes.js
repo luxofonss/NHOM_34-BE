@@ -11,6 +11,13 @@ const attributeList = [
     },
   },
   {
+    name: "phoneType",
+    detail: {
+      name: { vi: "Loaị điện thoại" },
+      type: "text",
+    },
+  },
+  {
     name: "storeCapacity",
     detail: {
       name: { vi: "Dung lượng lưu trữ" },
@@ -40,10 +47,10 @@ const attributeList = [
       name: { vi: "Loại bảo hành" },
       type: "select",
       selections: [
-        "Bảo hành nhà cung cấp",
-        "Bảo hành nhà sản xuất",
-        "Bảo hành quốc tế",
-        "Không bảo hành",
+        { name: "Bảo hành nhà cung cấp", value: "Bảo hành nhà cung cấp" },
+        { name: "Bảo hành nhà sản xuất", value: "Bảo hành nhà sản xuất" },
+        { name: "Bảo hành quốc tế", value: "Bảo hành quốc tế" },
+        { name: "Không bảo hành", value: "Không bảo hành" },
       ],
     },
   },
@@ -154,7 +161,11 @@ const attributeList = [
     detail: {
       name: { vi: "Đơn vị pin" },
       type: "select",
-      selections: ["mAh", "cell", "Wh"],
+      selections: [
+        { name: "mAh", value: "mAh" },
+        { name: "cell", value: "cell" },
+        { name: "Wh", value: "Wh" },
+      ],
     },
   },
   {

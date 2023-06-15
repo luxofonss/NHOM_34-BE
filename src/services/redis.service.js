@@ -19,7 +19,7 @@ const acquiredLock = async ({ productId, quantity, cartId }) => {
 
     if (result === 1) {
       // action allowed
-      console.log("action with inventory");
+      console.log("action with variation");
 
       return key;
     } else {

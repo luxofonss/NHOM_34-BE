@@ -14,7 +14,7 @@ router.get("", asyncHandler(productController.findAllProducts));
 router.get("/:productId", asyncHandler(productController.findOneProduct));
 
 //need authentication
-router.use(authentication);
+router.use(asyncHandler(authentication));
 
 //post
 router.post("", [
@@ -35,6 +35,7 @@ router.post(
 router.patch("/:productId", asyncHandler(productController.updateProduct));
 
 //get
+router.get("/shop/all", asyncHandler(productController.findAllProductsForShop));
 router.get("/drafts/all", asyncHandler(productController.findAllDraftForShop));
 router.get(
   "/published/all",

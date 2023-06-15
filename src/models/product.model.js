@@ -24,6 +24,7 @@ const productSchema = new Schema(
       },
     ],
     quantity: Number,
+    sold: { type: Number, default: 0 },
     typeId: {
       type: Types.ObjectId,
       required: true,
@@ -40,11 +41,11 @@ const productSchema = new Schema(
     },
     minPrice: {
       type: Number,
-      min: [0, "Condition must be greater than 0"],
+      min: [0, "Price must be greater than 0"],
     },
     maxPrice: {
       type: Number,
-      min: [0, "Condition must be greater than 0"],
+      min: [0, "Price must be greater than 0"],
     },
     brand: {
       type: String,
@@ -65,7 +66,7 @@ const productSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
-    variations: [Schema.Types.ObjectId],
+    variations: [{ type: Schema.Types.ObjectId, ref: "Variation" }],
     shipping: {
       weight: { type: Number, required: true },
       parcelSize: {
@@ -79,6 +80,7 @@ const productSchema = new Schema(
         required: true,
       },
     },
+    sku: String,
     //additional
     ratingsAverage: {
       type: Number,
@@ -111,34 +113,6 @@ productSchema.index({ name: "text", description: "text" });
 productSchema.pre("save", function (next) {
   //add quantity, minPrice, maxPrice to product
   console.log(this.attributes);
-  let minPrice = 10e9,
-    maxPrice = 0;
-  let quantity = 0;
-
-  this.variations.forEach((item) => {
-    if (!item.children) {
-      quantity += item.stock;
-      if (item.price < minPrice) {
-        minPrice = item.price;
-      }
-      if (item.price > maxPrice) {
-        maxPrice = item.price;
-      }
-    } else {
-      item.children.forEach((subItem) => {
-        quantity += subItem.stock;
-        if (subItem.price < minPrice) {
-          minPrice = subItem.price;
-        }
-        if (subItem.price > maxPrice) {
-          maxPrice = subItem.price;
-        }
-      });
-    }
-  });
-  this.quantity = quantity;
-  this.minPrice = minPrice;
-  this.maxPrice = maxPrice;
   this.slug = slugify(this.name, { lower: true });
   next();
 });

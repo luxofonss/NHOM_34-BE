@@ -5,6 +5,8 @@ const USER_ROLE = {
   ADMIN: "ADMIN",
 };
 
+const INFINITY = 10e9
+
 const HEADER = {
   API_KEY: "x-api-key",
   CLIENT_ID: "x-client-id",

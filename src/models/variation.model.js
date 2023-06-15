@@ -1,21 +1,21 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose"); // Erase if already required
-const DOCUMENT_NAME = "Inventory";
-const COLLECTION_NAME = "inventories";
+const DOCUMENT_NAME = "Variation";
+const COLLECTION_NAME = "variation";
 
 // Declare the Schema of the Mongo model
-const inventorySchema = new Schema(
+const variationSchema = new Schema(
   {
     productId: {
       type: Types.ObjectId,
       required: true,
       ref: "Product",
     },
-    variation1: { type: String, required: true },
-    variation1Value: { type: String, required: true },
-    variation2: String,
-    variation2Value: String,
+    keyVariation: { type: String, required: true },
+    keyVariationValue: { type: String, required: true },
+    subVariation: String,
+    subVariationValue: String,
     isSingle: { type: Boolean, default: true },
     thumb: String,
     price: Number,
@@ -28,4 +28,4 @@ const inventorySchema = new Schema(
 );
 
 //Export the model
-module.exports = model(DOCUMENT_NAME, inventorySchema);
+module.exports = model(DOCUMENT_NAME, variationSchema);

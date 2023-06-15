@@ -3,6 +3,7 @@
 const express = require("express");
 const router = express.Router();
 
+router.use("/v1/api/category", require("./category"));
 router.use("/v1/api/discount", require("./discount"));
 router.use("/v1/api/checkout", require("./checkout"));
 router.use("/v1/api/shop", require("./user"));
