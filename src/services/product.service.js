@@ -6,7 +6,7 @@ const product = require("../models/product.model");
 const mobile = require("../models/products/mobile.model");
 const tablet = require("../models/products/tablet.model");
 const UploadService = require("../services/upload.service");
-const { insertInventory } = require("../models/repositories/inventory.repo");
+const { insertVariation } = require("../models/repositories/variation.repo");
 const {
   findAllDraftForShop,
   publishProductByShop,
@@ -17,6 +17,7 @@ const {
   findOneProduct,
   updateProductById,
   addVariationToProduct,
+  findAllProductsForShop,
 } = require("../models/repositories/product.repo");
 const {
   removeUndefinedObject,
@@ -38,9 +39,7 @@ class ProductFactory {
     this.productRegistry[type] = { classRef, model: model };
   }
 
-  static async createProduct(files, shopId, payload) {
-    const typeId = payload.typeId;
-
+  static async createProduct(typeId, files, shopId, payload) {
     const hasCategory = await CategoryService.getCategoryBySubCategoryId(
       typeId
     );
@@ -80,7 +79,32 @@ class ProductFactory {
 
   //GET
   static async findOneProduct({ productId }) {
-    return await findOneProduct({ productId, unSelect: ["__v"] });
+    const foundProduct = await findOneProduct({ productId, unSelect: ["__v"] });
+    console.log("found product", foundProduct);
+
+    const hasCategory = await CategoryService.getCategoryBySubCategoryId(
+      foundProduct.typeId
+    );
+
+    if (!hasCategory) {
+      throw new NotFoundError("Category not found, please try again!");
+    }
+
+    const className = hasCategory.subTypes[0].classRef;
+    const productModel = ProductFactory.productRegistry[className].model;
+    if (!productModel) {
+      throw new BadRequestError(`invalid type ${className}`);
+    }
+
+    const result = foundProduct.populate([
+      { path: "variations" },
+      {
+        path: "attributes",
+        model: productModel,
+      },
+    ]);
+
+    return result;
   }
 
   static async findAllProducts({
@@ -95,6 +119,35 @@ class ProductFactory {
       filter,
       page,
       select: ["name", "thumb", "description", "price", "thumb", "shop"],
+    });
+  }
+
+  static async findAllProductsForShop({
+    stock,
+    sold,
+    limit = 10,
+    page = 1,
+    filter = {},
+    sort = "ctime",
+  }) {
+    console.log("stock in service:: ", stock);
+    return await findAllProductsForShop({
+      stock,
+      sold,
+      limit,
+      page,
+      filter,
+      sort,
+      select: [
+        "name",
+        "thumb",
+        "description",
+        "thumb",
+        "variations",
+        "isDraft",
+        "sold",
+        "sku",
+      ],
     });
   }
 
@@ -128,10 +181,18 @@ class ProductFactory {
     });
   }
 
-  static async getProductAttributes({ type }) {
+  static async getProductAttributes({ typeId }) {
+    const hasCategory = await CategoryService.getCategoryBySubCategoryId(
+      typeId
+    );
+
+    if (!hasCategory) {
+      throw new NotFoundError("Category not found, please try again!");
+    }
+    const type = hasCategory.subTypes[0].classRef;
     const productClass = ProductFactory.productRegistry[type].classRef;
     if (!productClass) {
-      throw new BadRequestError(`invalid type ${type}`);
+      throw new BadRequestError(`invalid type`);
     }
     const prodModel = ProductFactory.productRegistry[type].model;
     console.log("test");
@@ -163,6 +224,7 @@ class Product {
     isPublished,
     attributes,
     files,
+    sku,
   }) {
     this.name = name;
     this.description = description;
@@ -174,12 +236,13 @@ class Product {
     this.manufacturerName = manufacturerName;
     this.manufacturerAddress = manufacturerAddress;
     this.manufactureDate = manufactureDate;
-    this.variations = variations;
-    this.shipping = shipping;
+    this.variations = JSON.parse(variations);
+    this.shipping = JSON.parse(shipping);
     this.isDraft = isDraft;
     this.isPublished = isPublished;
-    this.attributes = attributes;
+    this.attributes = JSON.parse(attributes);
     this.files = files;
+    this.sku = sku;
   }
 
   //create new product
@@ -200,6 +263,40 @@ class Product {
 
     console.log("productThumbs:: ", productThumbs);
 
+    let minPrice = 10e9,
+      maxPrice = 0;
+    let quantity = 0;
+    console.log("variations: ", this.variations);
+
+    //cast to number fail NaN
+    
+    this.variations.forEach((item) => {
+      console.log("variations: ", item);
+      if (!item.children) {
+        quantity += item.stock;
+        if (parseInt(item.price) < minPrice) {
+          minPrice = parseInt(item.price);
+        }
+        if (parseInt(item.price) > maxPrice) {
+          maxPrice = parseInt(item.price);
+        }
+      } else {
+        item.children.forEach((subItem) => {
+          console.log("subItem: ", subItem);
+
+          quantity += parseInt(subItem.stock);
+          if (parseInt(subItem.price) < minPrice) {
+            minPrice = parseInt(subItem.price);
+          }
+          if (parseInt(subItem.price) > maxPrice) {
+            maxPrice = parseInt(subItem.price);
+          }
+        });
+      }
+    });
+    this.quantity = quantity;
+    this.minPrice = minPrice;
+    this.maxPrice = maxPrice;
     const productAttributes = {
       name: this.name,
       description: this.description,
@@ -214,7 +311,11 @@ class Product {
       isDraft: this.isDraft,
       thumb: productThumbs,
       isPublished: this.isPublished,
+      sku: this.sku,
       attributes: productId,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      quantity: quantity,
     };
     const newProduct = await product.create({
       ...productAttributes,
@@ -224,25 +325,39 @@ class Product {
     if (newProduct) {
       await Promise.all(
         this.variations.map(async (variation, index) => {
-          let variationThumb;
-          this.files.map(async (file) => {
-            if (file.fieldname === `variation[${index}.thumb]`) {
-              variationThumb = await UploadService.uploadSingleImage(file);
-            }
-          });
+          let variationThumb = "";
+          await Promise.all(
+            this.files.map(async (file) => {
+              console.log("fieldname:", file.fieldname);
+              console.log(
+                "equal: ",
+                file.fieldname,
+                `variations[${index}].thumb`,
+                file.fieldname === `variations[${index}].[thumb]`
+              );
+              if (file.fieldname === `variations[${index}].thumb`) {
+                console.log("uploading...");
+                let url = await UploadService.uploadSingleImage(file);
+                console.log("url: ", url);
+                variationThumb = url;
+              }
+            })
+          );
+
+          console.log("variationThumb: ", variationThumb);
 
           if (variation.children) {
             await Promise.all(
               variation.children.map(async (subVariation) => {
-                const newVariation = await insertInventory({
+                const newVariation = await insertVariation({
                   productId: newProduct._id,
-                  variation1: variation.name,
-                  variation1Value: variation.value,
-                  variation2: subVariation.name,
-                  variation2Value: subVariation.value,
+                  keyVariation: variation.name,
+                  keyVariationValue: variation.value,
+                  subVariation: subVariation.name,
+                  subVariationValue: subVariation.value,
                   stock: subVariation.stock,
                   price: subVariation.price,
-                  thumb: variation.thumb,
+                  thumb: variationThumb,
                   isSingle: false,
                 });
 
@@ -253,13 +368,13 @@ class Product {
               })
             );
           } else {
-            const newVariation = await insertInventory({
+            const newVariation = await insertVariation({
               productId: newProduct._id,
-              variation1: variation.name,
-              variation1Value: variation.value,
+              keyVariation: variation.name,
+              keyVariationValue: variation.value,
               stock: variation.stock,
               price: variation.price,
-              thumb: variation.thumb,
+              thumb: variationThumb,
             });
             await addVariationToProduct({
               id: newProduct._id,
@@ -274,6 +389,25 @@ class Product {
   }
 
   async updateProduct(productId, payload) {
+    const {
+      name,
+      description,
+      typeId,
+      condition,
+      preOrder,
+      brand,
+      manufacturerName,
+      manufacturerAddress,
+      manufactureDate,
+      shipping,
+      isDraft,
+      thumb,
+      isPublished,
+      attributes,
+    } = payload;
+
+    console.log("typeId: ", typeId);
+
     return await updateProductById({ productId, payload, model: product });
   }
 }

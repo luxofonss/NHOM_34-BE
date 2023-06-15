@@ -38,7 +38,7 @@ const authentication = async (req, res, next) => {
     req.user = decodeUser;
     next();
   } catch (error) {
-    throw error;
+    throw new AuthFailureError("Invalid request");
   }
 };
 

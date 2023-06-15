@@ -16,6 +16,11 @@ const categorySchema = new Schema(
         classRef: String,
       },
     ],
+<<<<<<< HEAD
+    slug: String,
+    thumb: String,
+=======
+>>>>>>> be2de090be868a58ec0ca237db53f79888beb512
   },
   {
     timestamps: true,
