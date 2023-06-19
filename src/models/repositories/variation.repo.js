@@ -29,6 +29,11 @@ const insertVariation = async ({
   });
 };
 
+const findVariationById = async (variationId) => {
+  return await variation.findById(variationId).exec();
+};
+
 module.exports = {
   insertVariation,
+  findVariationById,
 };

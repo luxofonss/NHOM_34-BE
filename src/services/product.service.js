@@ -6,7 +6,10 @@ const product = require("../models/product.model");
 const mobile = require("../models/products/mobile.model");
 const tablet = require("../models/products/tablet.model");
 const UploadService = require("../services/upload.service");
-const { insertVariation } = require("../models/repositories/variation.repo");
+const {
+  insertVariation,
+  findVariationById,
+} = require("../models/repositories/variation.repo");
 const {
   findAllDraftForShop,
   publishProductByShop,
@@ -25,6 +28,7 @@ const {
   convertToObjectIdMongodb,
 } = require("../utils");
 const CategoryService = require("./category.service");
+const UserService = require("./user.service");
 
 // define Factory class to create products
 class ProductFactory {
@@ -204,6 +208,22 @@ class ProductFactory {
 
     return getAcceptArray(attributes, ["createdAt", "updatedAt", "_id", "__v"]);
   }
+
+  //check
+  static async checkProductStock({ shopId, productId, variationId, quantity }) {
+    const foundShop = await UserService.getShopById(shopId);
+    if (!foundShop) throw new NotFoundError("Shop is not found!");
+
+    const foundProduct = await product.findById(productId).exec();
+    if (!foundProduct) throw new NotFoundError("Product is not exist!");
+    console.log(foundProduct.shop.toString());
+    if (foundProduct.shop.toString() !== shopId)
+      throw new BadRequestError("Product is not belong to this shop!");
+
+    const foundVariation = await findVariationById(variationId);
+    if (!foundVariation) throw new NotFoundError("Product is not exist!");
+    return foundVariation.stock >= quantity;
+  }
 }
 // define base product class
 class Product {
@@ -269,7 +289,7 @@ class Product {
     console.log("variations: ", this.variations);
 
     //cast to number fail NaN
-    
+
     this.variations.forEach((item) => {
       console.log("variations: ", item);
       if (!item.children) {

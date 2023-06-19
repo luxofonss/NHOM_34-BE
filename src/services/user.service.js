@@ -3,6 +3,8 @@
 const { USER_ROLE } = require("../constant");
 const { ForbiddenError, BadRequestError } = require("../core/error.response");
 const userModel = require("../models/user.model");
+const getUpdateField = require("../utils/getUpdateField");
+const { convertToObjectIdMongodb } = require("../utils");
 
 const selectOptions = {
   email: 1,
@@ -12,6 +14,9 @@ const selectOptions = {
   roles: 1,
   oauthId: 1,
   oauthService: 1,
+  avatar: 1,
+  address: 1,
+  shopInfo: 1,
 };
 
 class UserService {
@@ -31,12 +36,17 @@ class UserService {
     name,
     email,
     password,
+    phoneNumber,
+    address = [address],
+    dateOfBirth,
     roles = [USER_ROLE.SHOP],
   }) => {
     return await userModel.create({
       name,
       email,
+      phoneNumber,
       password,
+      dateOfBirth,
       roles,
     });
   };
@@ -69,13 +79,38 @@ class UserService {
 
   static registerUserAsShop = async ({ userId, shopInfo }) => {
     const foundUser = await userModel.findById(userId).exec();
-    if (!foundUser) throw new ForbiddenError("Can not find your information.");
+    if (!foundUser) throw new ForbiddenError("Không tìm thấy thông tin.");
 
     if (foundUser.isShop)
-      throw new BadRequestError("You have already registered as a shop");
+      throw new BadRequestError("Bạn đã đăng ký làm nhà bán hàng");
     foundUser.shopInfo = shopInfo;
     foundUser.isShop = true;
+    foundUser.roles.push(USER_ROLE.SHOP);
     return await foundUser.save();
+  };
+
+  static getShopById = async (shopId) => {
+    const foundShop = await userModel
+      .findById(shopId)
+      .select("name email verify avatar address shopInfo isShop")
+      .exec();
+
+    if (!foundShop) throw new ForbiddenError("Can not find shop.");
+
+    if (!foundShop.isShop) throw new BadRequestError("This is not a shop");
+
+    return foundShop;
+  };
+
+  static updateUserInfo = async ({ userId, newUserInfo }) => {
+    const foundUser = await userModel.findById(userId).exec();
+    if (!foundUser) throw new ForbiddenError("Không tìm thấy tài khoản.");
+    const updateField = getUpdateField(newUserInfo);
+    console.log("updateField:: ", updateField);
+
+    return await userModel
+      .updateOne({ _id: convertToObjectIdMongodb(userId) }, updateField)
+      .exec();
   };
 }
 

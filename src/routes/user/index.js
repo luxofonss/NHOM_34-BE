@@ -6,8 +6,10 @@ const asyncHandler = require("../../helpers/asyncHandler");
 const router = express.Router();
 const { authentication } = require("../../auth/authUtils");
 
-router.use(asyncHandler(authentication));
+router.get("/:id", asyncHandler(userController.getShopById));
 
+router.use(asyncHandler(authentication));
+router.put("/update", asyncHandler(userController.updateUserInfo));
 router.post("/register", asyncHandler(userController.registerUserAsShop));
 
 module.exports = router;

@@ -43,10 +43,13 @@ const userSchema = new Schema(
     avatar: {
       type: String,
     },
+    phoneNumber: { type: String, required: true },
     address: { type: Array, default: [] },
     shopInfo: {
       description: String,
       address: String,
+      shopName: String,
+      phoneNumber: String,
       // followers:
       // rating
     },

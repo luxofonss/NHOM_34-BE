@@ -10,7 +10,7 @@ router.get(
   asyncHandler(discountController.getAllDiscountCodesWithProduct)
 );
 
-router.use(authentication);
+router.use(asyncHandler(authentication));
 
 //for shop
 router.post("/amount", asyncHandler(discountController.getDiscountAmount));

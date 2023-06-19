@@ -7,13 +7,13 @@ const verifyAccessToken = require("../../middlewares/verifyAccessToken");
 const verifyRefreshToken = require("../../middlewares/verifyRefreshToken");
 const router = express.Router();
 
-router.post("/user/signup", AccessController.signUp);
-router.post("/user/login", asyncHandler(AccessController.logIn));
-router.post("/user/logout", [
+router.post("/auth/signup", AccessController.signUp);
+router.post("/auth/login", asyncHandler(AccessController.logIn));
+router.post("/auth/logout", [
   asyncHandler(verifyRefreshToken),
   asyncHandler(AccessController.handleLogout),
 ]);
-router.get("/user/profile", [
+router.get("/auth/profile", [
   asyncHandler(verifyAccessToken),
   asyncHandler(AccessController.handleProfile),
 ]);

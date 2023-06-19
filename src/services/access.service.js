@@ -18,12 +18,13 @@ const { USER_ROLE, COOKIE_OPTIONS } = require("../constant");
 
 class AccessService {
   static signUp = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, phoneNumber, address, dateOfBirth } =
+      req.body;
+    console.log("body: ", req.body);
     // check if email has already been registered
     const foundUser = await UserService.findByEmail({ email });
-    console.log(foundUser);
     if (foundUser) {
-      throw new BadRequestError("Error: User has already been registered");
+      throw new BadRequestError("Email này đã được đăng ký");
     }
 
     // hash password
@@ -34,6 +35,9 @@ class AccessService {
       name,
       email,
       password: passwordHash,
+      phoneNumber,
+      dateOfBirth,
+      address,
     });
 
     // create user successfully
@@ -74,7 +78,15 @@ class AccessService {
       return {
         code: "xxx",
         user: await getInfoData({
-          fields: ["_id", "name", "email"],
+          fields: [
+            "_id",
+            "name",
+            "email",
+            "roles",
+            "address",
+            "avatar",
+            "shopInfo",
+          ],
           object: newUser,
         }),
         tokens,
@@ -155,7 +167,16 @@ class AccessService {
     return {
       user: getInfoData({
         object: foundUser,
-        fields: ["_id", "email", "roles", "verify"],
+        fields: [
+          "_id",
+          "email",
+          "name",
+          "roles",
+          "verify",
+          "address",
+          "avatar",
+          "shopInfo",
+        ],
       }),
       tokens,
     };
@@ -258,15 +279,22 @@ class AccessService {
 
     return {
       user: getInfoData({
-        fields: ["_id", "name", "email", "roles"],
+        fields: [
+          "_id",
+          "email",
+          "name",
+          "roles",
+          "verify",
+          "address",
+          "avatar",
+          "shopInfo",
+        ],
         object: user,
       }),
     };
   };
 
-  static oauthSuccess = async ()=> {
-    
-  }
+  static oauthSuccess = async () => {};
 }
 
 module.exports = AccessService;

@@ -13,6 +13,23 @@ class UserController {
       }),
     }).send(res);
   };
+
+  static getShopById = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Found shop!",
+      metadata: await UserService.getShopById(req.params.id),
+    }).send(res);
+  };
+
+  static updateUserInfo = async (req, res) => {
+    return new SuccessResponse({
+      message: "Updated user successfully!",
+      metadata: await UserService.updateUserInfo({
+        userId: req.user.userId,
+        newUserInfo: req.body,
+      }),
+    }).send(res);
+  };
 }
 
 module.exports = UserController;
