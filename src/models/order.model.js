@@ -8,10 +8,19 @@ const COLLECTION_NAME = "order";
 const orderSchema = new Schema(
   {
     userId: {
-      type: Number,
+      type: Types.ObjectId,
       required: true,
+      ref: "User",
     },
-    checkout: { type: Object, default: {} },
+    shopId: {
+      type: Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    checkout: {
+      totalPrice: Number,
+      shipFee: Number,
+    },
     /**
      * checkout = {
      *  totalPrice,
@@ -19,19 +28,22 @@ const orderSchema = new Schema(
      *  shipFee
      *  }
      */
-    shipping: { type: Object, default: {} },
+    shipping: { address: String, unit: String },
     /**
      * street,
      * city,
      * state,
      * country
      */
-    payment: { type: Object, default: {} },
-    products: {
-      type: Array,
-      required: true,
-    },
-    trackingNumber: { type: String, default: "#00000119032023" },
+    payment: { method: String },
+    products: [
+      {
+        productId: { type: Types.ObjectId, ref: "Product" },
+        variationId: { type: Types.ObjectId, ref: "Variation" },
+        quantity: { type: Number, required: true },
+      },
+    ],
+    trackingNumber: { type: String, required: true },
     status: {
       type: String,
       enum: [
@@ -41,8 +53,24 @@ const orderSchema = new Schema(
         "CANCELED",
         "REJECTED",
         "SHIPPING",
+        "RETURN",
       ],
     },
+    cancel: {
+      reason: String,
+      canceledAt: Date,
+    },
+    return: {
+      returnAt: Date,
+      reason: String,
+    },
+    reject: {
+      rejectedAt: Date,
+      reason: String,
+    },
+    confirmAt: Date,
+    deliveredAt: Date,
+    shippingAt: Date,
   },
   {
     timestamps: true,

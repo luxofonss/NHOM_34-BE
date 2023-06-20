@@ -1,6 +1,7 @@
 "use strict";
 
 const keyTokenModel = require("../models/keyToken.model");
+const { convertToObjectIdMongodb } = require("../utils");
 
 class KeyStoreService {
   static createKeyToken = async ({
@@ -27,7 +28,7 @@ class KeyStoreService {
   static findByUserId = async (userId) => {
     try {
       const token = await keyTokenModel
-        .findOne({ userId: userId })
+        .findOne({ userId: convertToObjectIdMongodb(userId) })
         .lean()
         .exec();
       return token;

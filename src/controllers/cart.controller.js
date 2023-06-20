@@ -79,6 +79,10 @@ class CartController {
       metadata: await CartService.setProductCheck({
         userId: req.user.userId,
         variationId: req.body.variationId,
+        shopId: req.body.shopId,
+        productId: req.body.productId,
+        quantity: req.body.quantity,
+        checked: req.body.checked,
       }),
     }).send(res);
   };

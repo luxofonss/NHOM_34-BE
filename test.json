@@ -1,0 +1,64 @@
+{
+  "message": "Get shop orders successfully!",
+  "status": 200,
+  "metadata": [
+      {
+          "_id": "649066eca23d1f5454301b6c",
+          "customer": {
+              "_id": "64455e0a6143eca3f689ee85",
+              "email": "quyen@gmail.com",
+              "address": [
+                  "hanoi2",
+                  "123",
+                  "hanoi ",
+                  "asd",
+                  "asdasf",
+                  "hatinh"
+              ],
+              "name": "quyen2"
+          },
+          "checkout": {
+              "totalPrice": 33,
+              "shipFee": 50000
+          },
+          "shipping": {
+              "address": "hanoi2"
+          },
+          "payment": {
+              "method": "COD"
+          },
+          "trackingNumber": "quyen22f2da90d",
+          "status": "PENDING",
+          "createdAt": "2023-06-19T14:32:12.668Z",
+          "updatedAt": "2023-06-19T14:32:12.668Z",
+          "products": [
+              {
+                  "product": [
+                      {
+                          "_id": "648896125759fe5d6091b511",
+                          "name": "Apple iPhone 11 64GB",
+                          "thumb": [
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb1.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=4fa1231e-277d-4fa3-a8fd-a05d595b9ea1",
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb6.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=d6cbc5fe-a682-48b0-8b59-a8e3471142b6",
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb4.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=b5e79d7a-b8ac-4657-9317-8f2c3fb5232c",
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb5.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=47639012-acf6-4180-980e-267550533778",
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb3.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=bf157f9c-6638-4c2a-aaf9-aca53b5cc3bb",
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb0.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=5ede9c2e-18b5-4bf0-ae21-b5e6b000a15a",
+                              "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb2.jpg%202023-6-13%2023%3A15%3A14?alt=media&token=2d144763-e05b-433a-802c-ac5e44d30db0"
+                          ]
+                      }
+                  ],
+                  "variation": {
+                      "_id": "648896145759fe5d6091b515",
+                      "keyVariation": "Màu",
+                      "keyVariationValue": "đen",
+                      "thumb": "https://firebasestorage.googleapis.com/v0/b/sopy-1858b.appspot.com/o/files%2Fimages%2Fthumb7.jpg%202023-6-13%2023%3A15%3A16?alt=media&token=8b1d19cd-5da0-4c23-99fa-838d46f56236",
+                      "price": 33,
+                      "stock": 0
+                  },
+                  "quantity": 1
+              }
+          ]
+      }
+  ]
+}

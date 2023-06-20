@@ -33,7 +33,20 @@ const findVariationById = async (variationId) => {
   return await variation.findById(variationId).exec();
 };
 
+const decreaseVariation = async ({ variationId, quantity }) => {
+  return await variation.findOneAndUpdate(
+    {
+      _id: convertToObjectIdMongodb(variationId),
+    },
+    {
+      $inc: { stock: -quantity },
+    },
+    { new: true }
+  );
+};
+
 module.exports = {
   insertVariation,
   findVariationById,
+  decreaseVariation,
 };

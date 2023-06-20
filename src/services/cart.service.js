@@ -382,30 +382,71 @@ class CartService {
       .exec();
   }
 
-  static async setProductCheck({ userId, variationId }) {
-    return await cart
-      .findOneAndUpdate(
-        {
-          userId: convertToObjectIdMongodb(userId),
-          "products.products.variationId":
-            convertToObjectIdMongodb(variationId),
-        },
-        {
-          $bit: { "products.$[outer].products.$[inner].checked": { xor: 1 } },
-        },
-        {
-          arrayFilters: [
+  static async setProductCheck({
+    userId,
+    variationId,
+    productId,
+    shopId,
+    quantity,
+    checked,
+  }) {
+    let able = await ProductFactory.checkProductStock({
+      shopId: shopId,
+      productId: productId,
+      variationId: variationId,
+      quantity: quantity,
+    });
+    if (able)
+      return await cart
+        .findOneAndUpdate(
+          {
+            userId: convertToObjectIdMongodb(userId),
+            "products.products.variationId":
+              convertToObjectIdMongodb(variationId),
+          },
+          {
+            $bit: { "products.$[outer].products.$[inner].checked": { xor: 1 } },
+          },
+          {
+            arrayFilters: [
+              {
+                "outer.products.variationId":
+                  convertToObjectIdMongodb(variationId),
+              },
+              {
+                "inner.variationId": convertToObjectIdMongodb(variationId),
+              },
+            ],
+          }
+        )
+        .exec();
+    else {
+      if (!checked)
+        await cart
+          .findOneAndUpdate(
             {
-              "outer.products.variationId":
+              userId: convertToObjectIdMongodb(userId),
+              "products.products.variationId":
                 convertToObjectIdMongodb(variationId),
             },
             {
-              "inner.variationId": convertToObjectIdMongodb(variationId),
+              "products.$[outer].products.$[inner].checked": 0,
             },
-          ],
-        }
-      )
-      .exec();
+            {
+              arrayFilters: [
+                {
+                  "outer.products.variationId":
+                    convertToObjectIdMongodb(variationId),
+                },
+                {
+                  "inner.variationId": convertToObjectIdMongodb(variationId),
+                },
+              ],
+            }
+          )
+          .exec();
+      throw new BadRequestError("Sản phẩm đã hết hàng");
+    }
   }
 
   static async deleteItem({ variationId, userId }) {
@@ -429,3 +470,4 @@ class CartService {
 }
 
 module.exports = CartService;
+
