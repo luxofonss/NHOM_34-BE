@@ -10,6 +10,7 @@ const {
   insertVariation,
   findVariationById,
 } = require("../models/repositories/variation.repo");
+
 const {
   findAllDraftForShop,
   publishProductByShop,
@@ -289,7 +290,6 @@ class Product {
     console.log("variations: ", this.variations);
 
     //cast to number fail NaN
-
     this.variations.forEach((item) => {
       console.log("variations: ", item);
       if (!item.children) {
