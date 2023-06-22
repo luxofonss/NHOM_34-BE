@@ -33,15 +33,66 @@ class OrderController {
     }).send(res);
   };
 
-  static updateOrdersStatus = async (req, res, next) => {
+  static confirmOrders = async (req, res, next) => {
     return new SuccessResponse({
-      message: "Update order successfully!",
-      metadata: await OrderService.updateOrderStatus({
+      message: "Confirm order successfully!",
+      metadata: await OrderService.confirmOrders({
+        shopId: req.user.userId,
+        orderIds: req.body.orderIds,
+      }),
+    }).send(res);
+  };
+
+  static shippingOrders = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Shipping order successfully!",
+      metadata: await OrderService.shippingOrders({
+        shopId: req.user.userId,
+        orderIds: req.body.orderIds,
+      }),
+    }).send(res);
+  };
+
+  static rejectOrder = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Reject order successfully!",
+      metadata: await OrderService.rejectOrder({
         shopId: req.user.userId,
         orderId: req.body.orderId,
-        status: req.body.status,
+        reason: req.body.reason,
       }),
-    });
+    }).send(res);
+  };
+
+  static cancelOrder = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Cancel order successfully!",
+      metadata: await OrderService.cancelOrder({
+        userId: req.user.userId,
+        orderId: req.body.orderId,
+        reason: req.body.reason,
+      }),
+    }).send(res);
+  };
+
+  static getAndFilterOrder = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Filter order successfully!",
+      metadata: await OrderService.getAndFilterOrder({
+        shopId: req.user.userId,
+        body: req.query,
+      }),
+    }).send(res);
+  };
+
+  static getUserOrders = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Get orders successfully!",
+      metadata: await OrderService.getUserOrders({
+        userId: req.user.userId,
+        status: req.query.status,
+      }),
+    }).send(res);
   };
 }
 

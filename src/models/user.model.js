@@ -50,6 +50,7 @@ const userSchema = new Schema(
       address: String,
       shopName: String,
       phoneNumber: String,
+      avatar: String,
       // followers:
       // rating
     },

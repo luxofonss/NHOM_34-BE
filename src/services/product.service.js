@@ -1,6 +1,6 @@
 "use strict";
 
-const { productAttribute } = require("../constant/productAttributes");
+const productAttribute = require("../constant/productAttributes");
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const product = require("../models/product.model");
 const mobile = require("../models/products/mobile.model");

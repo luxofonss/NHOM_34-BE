@@ -185,6 +185,7 @@ class AccessService {
   static refreshToken = async (req, res) => {
     console.log("req", req.cookies);
     const refreshToken = req.cookies?.jwt;
+    console.log("here");
 
     // check if user exists
     const holderToken = await KeyStoreService.findByRefreshToken(refreshToken);

@@ -5,6 +5,8 @@ const { ForbiddenError, BadRequestError } = require("../core/error.response");
 const userModel = require("../models/user.model");
 const getUpdateField = require("../utils/getUpdateField");
 const { convertToObjectIdMongodb } = require("../utils");
+const { getUserById } = require("../models/repositories/user.repo");
+const UploadService = require("./upload.service");
 
 const selectOptions = {
   email: 1,
@@ -103,13 +105,23 @@ class UserService {
   };
 
   static updateUserInfo = async ({ userId, newUserInfo }) => {
-    const foundUser = await userModel.findById(userId).exec();
-    if (!foundUser) throw new ForbiddenError("Không tìm thấy tài khoản.");
+    await getUserById({ userId });
     const updateField = getUpdateField(newUserInfo);
     console.log("updateField:: ", updateField);
 
     return await userModel
-      .updateOne({ _id: convertToObjectIdMongodb(userId) }, updateField)
+      .findOneAndUpdate({ _id: convertToObjectIdMongodb(userId) }, updateField)
+      .exec();
+  };
+
+  static updateUserAvatar = async ({ userId, image }) => {
+    await getUserById({ userId });
+    const url = await UploadService.uploadSingleImage(image);
+    return await userModel
+      .findOneAndUpdate(
+        { _id: convertToObjectIdMongodb(userId) },
+        { avatar: url }
+      )
       .exec();
   };
 }

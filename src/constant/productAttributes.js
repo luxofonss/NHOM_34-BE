@@ -1,9 +1,6 @@
 "use strict";
 
-let mobileAttribute = new Map();
-let tabletAttribute = new Map();
-let jacketAttribute = new Map();
-let monitorAttribute = new Map();
+let productAttribute = new Map();
 
 const attributeMobileList = [
   {
@@ -267,9 +264,9 @@ const attributeTabletList = [
   {
     name: "EReader",
     detail: {
-      name: { vi: "Thiết bị đọc điện tử"},
-      type: "boolean"
-    }
+      name: { vi: "Thiết bị đọc điện tử" },
+      type: "boolean",
+    },
   },
   {
     name: "batteryCapacity.value",
@@ -356,7 +353,7 @@ const attributeJacketList = [
     detail: {
       name: { vi: "Chiều dài tay áo" },
       type: "text",
-    }
+    },
   },
   {
     name: "jacketModel",
@@ -457,7 +454,7 @@ const attributeMonitorList = [
     detail: {
       name: { vi: "Loại giao diện màn hình" },
       type: "text",
-    }
+    },
   },
   {
     name: "resolution",
@@ -516,36 +513,30 @@ const attributeMonitorList = [
   },
 ];
 
-
 attributeMobileList.forEach((attribute) => {
-  mobileAttribute.set(attribute.name, {
+  productAttribute.set(attribute.name, {
     ...attribute.detail,
     path: attribute.name,
   });
 });
 
 attributeTabletList.forEach((attribute) => {
-  tabletAttribute.set(attribute.name, {
+  productAttribute.set(attribute.name, {
     ...attribute.detail,
     path: attribute.name,
   });
 });
 attributeJacketList.forEach((attribute) => {
-  jacketAttribute.set(attribute.name, {
+  productAttribute.set(attribute.name, {
     ...attribute.detail,
     path: attribute.name,
   });
 });
 attributeMonitorList.forEach((attribute) => {
-  monitorAttribute.set(attribute.name, {
+  productAttribute.set(attribute.name, {
     ...attribute.detail,
     path: attribute.name,
   });
 });
 
-module.exports = {
-  mobileAttribute,
-  tabletAttribute,
-  jacketAttribute,
-  monitorAttribute,
-};
+module.exports = productAttribute;

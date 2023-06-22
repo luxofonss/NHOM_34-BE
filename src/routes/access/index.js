@@ -24,7 +24,7 @@ router.get("/auth/google/callback", AccessController.handleLoginGoogleCallback);
 
 // Token
 router.get(
-  "/user/refresh-token",
+  "/auth/refresh-token",
   asyncHandler(AccessController.handleRefreshToken)
 );
 
