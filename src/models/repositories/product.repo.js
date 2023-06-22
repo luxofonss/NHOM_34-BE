@@ -64,7 +64,7 @@ const findAllProductsForShop = async ({
 
   console.log("sold:: ", sold);
   console.log("stock:: ", stock);
-  const productFitler = {
+  const productFilter = {
     ...filter,
     sold: {
       $gte: sold?.min ? parseInt(sold?.min) : -1,
@@ -78,7 +78,7 @@ const findAllProductsForShop = async ({
   const [products, count] = await Promise.all([
     product
       .aggregate([
-        { $match: productFitler },
+        { $match: productFilter },
         {
           $lookup: {
             from: "variation",
@@ -102,7 +102,7 @@ const findAllProductsForShop = async ({
         { $project: getSelectData(select) },
       ])
       .exec(),
-    product.countDocuments(productFitler),
+    product.countDocuments(productFilter),
   ]);
 
   return { products, count };

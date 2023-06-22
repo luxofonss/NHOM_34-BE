@@ -5,7 +5,7 @@ const USER_ROLE = {
   ADMIN: "ADMIN",
 };
 
-const INFINITY = 10e9
+const INFINITY = 10e9;
 
 const HEADER = {
   API_KEY: "x-api-key",
@@ -34,6 +34,16 @@ const FIREBASE_CONFIGURATION = {
   measurementId: process.env.FBS_MEASUREMENT_ID,
 };
 
+const ORDER_STATUS = {
+  PENDING: "PENDING",
+  CONFIRMED: "CONFIRMED",
+  CANCELED: "CANCELED",
+  REJECTED: "REJECTED",
+  SHIPPING: "SHIPPING",
+  DELIVERED: "DELIVERED",
+  RETURN: "RETURN",
+};
+
 module.exports = {
   USER_ROLE,
   HEADER,
@@ -41,4 +51,5 @@ module.exports = {
   REFRESH_TOKEN_EXPIRATION,
   COOKIE_OPTIONS,
   FIREBASE_CONFIGURATION,
+  ORDER_STATUS,
 };

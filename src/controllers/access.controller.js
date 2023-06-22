@@ -33,7 +33,7 @@ class AccessController {
   };
 
   static handleRefreshToken = async (req, res, next) => {
-    console.log(req.body);
+    console.log("refresh token");
     new SuccessResponse({
       message: "Refresh token successfully!",
       metadata: await AccessService.refreshToken(req, res),
@@ -67,16 +67,13 @@ class AccessController {
     prompt: "consent",
   });
 
-  static handleLoginGoogleCallback = passport.authenticate(
-    "google",
-    {
-      failureMessage: "Login failed",
-      failureRedirect: process.env.CLIENT_ERROR_LOGIN_URL,
-      successRedirect: process.env.CLIENT_SUCCESS_LOGIN_URL,
-      accessType: "offline",
-      prompt: "consent",
-    }
-  );
+  static handleLoginGoogleCallback = passport.authenticate("google", {
+    failureMessage: "Login failed",
+    failureRedirect: process.env.CLIENT_ERROR_LOGIN_URL,
+    successRedirect: process.env.CLIENT_SUCCESS_LOGIN_URL,
+    accessType: "offline",
+    prompt: "consent",
+  });
 }
 
 module.exports = AccessController;
