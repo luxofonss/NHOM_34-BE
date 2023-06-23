@@ -513,13 +513,338 @@ const attributeMonitorList = [
   },
 ];
 
+const attributeWatchList = [
+  {
+    name: "brand",
+    detail: {
+      name: { vi: "Thương hiệu" },
+      type: "text",
+    },
+  },
+  {
+    name: "caseStyle",
+    detail: {
+      name: { vi: "Kiểu vỏ đồng hồ" },
+      type: "text",
+    },
+  },
+  {
+    name: "buckleStyle",
+    detail: {
+      name: { vi: "Kiểu khóa đồng hồ" },
+      type: "text",
+    },
+  },
+  {
+    name: "clockFace",
+    detail: {
+      name: { vi: "Mặt đồng hồ" },
+      type: "number",
+    },
+  },
+  {
+    name: "glass",
+    detail: {
+      name: { vi: "Kính đồng hồ" },
+      type: "text",
+    },
+  },
+  {
+    name: "warrantyType",
+    detail: {
+      name: { vi: "Loại bảo hành" },
+      type: "select",
+      selections: [
+        { name: "Bảo hành nhà cung cấp", value: "Bảo hành nhà cung cấp" },
+        { name: "Bảo hành nhà sản xuất", value: "Bảo hành nhà sản xuất" },
+        { name: "Bảo hành quốc tế", value: "Bảo hành quốc tế" },
+        { name: "Không bảo hành", value: "Không bảo hành" },
+      ],
+    },
+  },
+  {
+    name: "clockStyle",
+    detail: {
+      name: { vi: "Kiểu đồng hồ" },
+      type: "text",
+    },
+  },
+  {
+    name: "diameter",
+    detail: {
+      name: { vi: "Đường kính vỏ đồng hồ" },
+      type: "number",
+      unit: "mm"
+    },
+  },
+  {
+    name: "watchCaseMaterial",
+    detail: {
+      name: { vi: "Chất liệu vỏ đồng hồ" },
+      type: "text",
+    },
+  },
+  {
+    name: "depthWater",
+    detail: {
+      name: { vi: "Độ sâu chống nước" },
+      type: "number",
+      unit: "m"
+    },
+  },
+  {
+    name: "origin",
+    detail: {
+      name: { vi: "Xuất xứ" },
+      type: "text",
+    },
+  },
+  {
+    name: "dimensions.L",
+    detail: {
+      name: { vi: "Chiều dài" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+  {
+    name: "dimensions.W",
+    detail: {
+      name: { vi: "Chiều rộng" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+  {
+    name: "dimensions.H",
+    detail: {
+      name: { vi: "Chiều cao" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+];
+const attributeBackupChargerList = [
+  {
+    name: "brand",
+    detail: {
+      name: { vi: "Thương hiệu" },
+      type: "text",
+    },
+  },
+  {
+    name: "numberPort",
+    detail: {
+      name: { vi: "Số cổng kết nối" },
+      type: "number",
+    },
+  },
+  {
+    name: "inputStyle",
+    detail: {
+      name: { vi: "Kiểu đầu vào" },
+      type: "number",
+      unit: "GB",
+    },
+  },
+  {
+    name: "warrantyType",
+    detail: {
+      name: { vi: "Loại bảo hành" },
+      type: "select",
+      selections: [
+        { name: "Bảo hành nhà cung cấp", value: "Bảo hành nhà cung cấp" },
+        { name: "Bảo hành nhà sản xuất", value: "Bảo hành nhà sản xuất" },
+        { name: "Bảo hành quốc tế", value: "Bảo hành quốc tế" },
+        { name: "Không bảo hành", value: "Không bảo hành" },
+      ],
+    },
+  },
+  {
+    name: "warrantyDuration",
+    detail: {
+      name: { vi: "Thời hạn bảo hành" },
+      type: "number",
+      unit: "Tháng",
+    },
+  },
+  {
+    name: "capacity",
+    detail: {
+      name: { vi: "Dung lượng sạc" },
+      type: "number",
+      unit: "mAh",
+    },
+  },
+  {
+    name: "cableType",
+    detail: {
+      name: { vi: "Loại cáp sạc dự phòng" },
+      type: "text",
+    },
+  },
+  {
+    name: "dimensions.L",
+    detail: {
+      name: { vi: "Chiều dài" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+  {
+    name: "dimensions.W",
+    detail: {
+      name: { vi: "Chiều rộng" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+  {
+    name: "dimensions.H",
+    detail: {
+      name: { vi: "Chiều cao" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+];
+
+const attributeDesktopComputerList = [
+  {
+    name: "brand",
+    detail: {
+      name: { vi: "Thương hiệu" },
+      type: "text",
+    },
+  },
+  {
+    name: "port",
+    detail: {
+      name: { vi: "Cổng/ Giao diện" },
+      type: "string",
+    },
+  },
+  {
+    name: "processor",
+    detail: {
+      name: { vi: "Vi xử lý" },
+      type: "text",
+    },
+  },
+  {
+    name: "warrantyType",
+    detail: {
+      name: { vi: "Loại bảo hành" },
+      type: "select",
+      selections: [
+        { name: "Bảo hành nhà cung cấp", value: "Bảo hành nhà cung cấp" },
+        { name: "Bảo hành nhà sản xuất", value: "Bảo hành nhà sản xuất" },
+        { name: "Bảo hành quốc tế", value: "Bảo hành quốc tế" },
+        { name: "Không bảo hành", value: "Không bảo hành" },
+      ],
+    },
+  },
+  {
+    name: "warrantyDuration",
+    detail: {
+      name: { vi: "Thời hạn bảo hành" },
+      type: "number",
+      unit: "Tháng",
+    },
+  },
+  {
+    name: "storage",
+    detail: {
+      name: { vi: "Loại lưu trữ" },
+      type: "text",
+      unit: "HDD", "SSD", "HDD + SSD",
+    },
+  },
+  {
+    name: "operationSystem",
+    detail: {
+      name: { vi: "Hệ điều hành" },
+      type: "text",
+    },
+  },
+  {
+    name: "capacity",
+    detail: {
+      name: { vi: "Dung lượng lưu trữ" },
+      type: "text",
+      unit: "GB",
+    },
+  },
+  {
+    name: "numberOfCors",
+    detail: {
+      name: { vi: "Số lõi" },
+      type: "number",
+    },
+  },
+  {
+    name: "cdDriver",
+    detail: {
+      name: { vi: "Ổ đĩa quang" },
+      type: "text",
+    },
+  },
+  {
+    name: "status",
+    detail: {
+      name: { vi: "Tình trạng" },
+      type: "text",
+    },
+  },
+  {
+    name: "CPUfrequency",
+    detail: {
+      name: { vi: "Tần số CPU" },
+      type: "number",
+      unit: "GHz"
+    },
+  },
+  {
+    name: "weight",
+    detail: {
+      name: { vi: "Trọng lượng" },
+      type: "number",
+      unit: "kg",
+    },
+  },
+
+  {
+    name: "dimensions.L",
+    detail: {
+      name: { vi: "Chiều dài" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+  {
+    name: "dimensions.W",
+    detail: {
+      name: { vi: "Chiều rộng" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+  {
+    name: "dimensions.H",
+    detail: {
+      name: { vi: "Chiều cao" },
+      type: "number",
+      unit: "mm",
+    },
+  },
+];
+
 attributeMobileList.forEach((attribute) => {
   productAttribute.set(attribute.name, {
     ...attribute.detail,
     path: attribute.name,
   });
 });
-
 attributeTabletList.forEach((attribute) => {
   productAttribute.set(attribute.name, {
     ...attribute.detail,
@@ -533,6 +858,24 @@ attributeJacketList.forEach((attribute) => {
   });
 });
 attributeMonitorList.forEach((attribute) => {
+  productAttribute.set(attribute.name, {
+    ...attribute.detail,
+    path: attribute.name,
+  });
+});
+attributeWatchList.forEach((attribute) => {
+  productAttribute.set(attribute.name, {
+    ...attribute.detail,
+    path: attribute.name,
+  });
+});
+attributeDesktopComputerList.forEach((attribute) => {
+  productAttribute.set(attribute.name, {
+    ...attribute.detail,
+    path: attribute.name,
+  });
+});
+attributeBackupChargerList.forEach((attribute) => {
   productAttribute.set(attribute.name, {
     ...attribute.detail,
     path: attribute.name,
