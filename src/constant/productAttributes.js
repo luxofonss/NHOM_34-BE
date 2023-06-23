@@ -756,8 +756,13 @@ const attributeDesktopComputerList = [
     name: "storage",
     detail: {
       name: { vi: "Loại lưu trữ" },
-      type: "text",
-      unit: "HDD", "SSD", "HDD + SSD",
+      type: "select",
+      selections: [
+        { name: "HDD", value: "HDD" },
+        { name: "SSD", value: "SSD" },
+        { name: "HDD + SSD", value: "HDD + SSD" },
+
+      ],
     },
   },
   {
