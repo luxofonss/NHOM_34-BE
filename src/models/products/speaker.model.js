@@ -1,24 +1,40 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose");
-const DOCUMENT_NAME = "DesktopComputer";
-const COLLECTION_NAME = "desktopComputer";
+const DOCUMENT_NAME = "Speaker";
+const COLLECTION_NAME = "speaker";
 
-const mobileSchema = new Schema(
+const speakerSchema = new Schema(
   {
     brand: {
       type: String,
       required: true,
     },
-    port: {
+    compatibleAudioDevice: {
+        type: String,
+        required: true,
+    },
+    frequency: {
+        type: Number,
+        required: true,
+    },
+    inputConnection: {
+        type: String,
+        required: true,
+    },
+    bluetooth: {
+      type: Boolean,
+      required: true,
+    },
+    wattage: {
+        type: String,
+        required: true,
+    },
+    connectionType: {
       type: String,
       required: true,
     },
-    processor: {
-      type: String,
-      required: true,
-    },
-    capacity: {
+    sensitivity: {
       type: String,
       required: true,
     },
@@ -31,27 +47,15 @@ const mobileSchema = new Schema(
       required: true,
       min: [0, "Warranty duration must be greater than zero!"],
     },
-    operationSystem: {
+    smartSpeaker: {
+      type: Boolean,
+      required: true,
+    },
+    type: {
       type: String,
       required: true,
     },
-    storage: {
-      type: String,
-      required: true,
-    },
-    numberOfCors: {
-      type: Number,
-      required: true,
-    },
-    cdDriver: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      required: true,
-    },
-    CPUfrequency: {
+    amliType: {
       type: Number,
       required: true,
     },
@@ -71,4 +75,4 @@ const mobileSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, desktopComputerSchema);
+module.exports = model(DOCUMENT_NAME, speakerSchema);

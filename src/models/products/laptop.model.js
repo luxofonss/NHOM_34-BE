@@ -1,18 +1,34 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose");
-const DOCUMENT_NAME = "DesktopComputer";
-const COLLECTION_NAME = "desktopComputer";
+const DOCUMENT_NAME = "Laptop";
+const COLLECTION_NAME = "laptop";
 
-const mobileSchema = new Schema(
+const laptopSchema = new Schema(
   {
     brand: {
       type: String,
       required: true,
     },
+    laptopModel: {
+        type: String,
+        required: true,
+    },
+    laptopType: {
+        type: String,
+        required: true,
+    },
+    graphicCard: {
+        type: String,
+        required: true,
+    },
     port: {
       type: String,
       required: true,
+    },
+    battery: {
+        type: String,
+        required: true,
     },
     processor: {
       type: String,
@@ -43,10 +59,6 @@ const mobileSchema = new Schema(
       type: Number,
       required: true,
     },
-    cdDriver: {
-      type: String,
-      required: true,
-    },
     status: {
       type: String,
       required: true,
@@ -71,4 +83,4 @@ const mobileSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, desktopComputerSchema);
+module.exports = model(DOCUMENT_NAME, laptopSchema);

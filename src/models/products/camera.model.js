@@ -1,24 +1,40 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose");
-const DOCUMENT_NAME = "DesktopComputer";
-const COLLECTION_NAME = "desktopComputer";
+const DOCUMENT_NAME = "camera";
+const COLLECTION_NAME = "camera";
 
-const mobileSchema = new Schema(
+const cameraSchema = new Schema(
   {
     brand: {
       type: String,
       required: true,
     },
-    port: {
+    lensType: {
+        type: String,
+        required: true,
+    },
+    screenSize: {
+        type: Number,
+        required: true,
+    },
+    cameraModel: {
+        type: String,
+        required: true,
+    },
+    resolution: {
+      type: Number,
+      required: true,
+    },
+    aperture: {
+        type: String,
+        required: true,
+    },
+    memoryCard: {
       type: String,
       required: true,
     },
-    processor: {
-      type: String,
-      required: true,
-    },
-    capacity: {
+    batteryType: {
       type: String,
       required: true,
     },
@@ -31,27 +47,15 @@ const mobileSchema = new Schema(
       required: true,
       min: [0, "Warranty duration must be greater than zero!"],
     },
-    operationSystem: {
+    waterproof: {
+      type: Boolean,
+      required: true,
+    },
+    frameRate: {
       type: String,
       required: true,
     },
-    storage: {
-      type: String,
-      required: true,
-    },
-    numberOfCors: {
-      type: Number,
-      required: true,
-    },
-    cdDriver: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      required: true,
-    },
-    CPUfrequency: {
+    standardRange: {
       type: Number,
       required: true,
     },
@@ -71,4 +75,4 @@ const mobileSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, desktopComputerSchema);
+module.exports = model(DOCUMENT_NAME, cameraSchema);
