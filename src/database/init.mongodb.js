@@ -2,11 +2,11 @@
 
 const mongoose = require("mongoose");
 const {
-  db: { host, port, name },
+  db: { host, port, name, username, password },
 } = require("../config/config.mongodb");
 const { countConnect } = require("../helpers/check_connect");
-const connectString = `mongodb://${host}:${port}/${name}`;
-
+// const connectString = `mongodb://${host}:${port}/${name}`;
+const connectString = `mongodb+srv://${username}:${password}@sopy.csmisue.mongodb.net/?retryWrites=true&w=majority`;
 class Database {
   constructor() {
     this.connect();
