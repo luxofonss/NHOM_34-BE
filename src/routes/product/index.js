@@ -7,6 +7,7 @@ const { authentication } = require("../../auth/authUtils");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
+router.get("/category/:id", asyncHandler(productController.getProductsByCategoryId));
 router.get("/attributes", asyncHandler(productController.getProductAttributes));
 router.get("/filter", asyncHandler(productController.filterProducts));
 router.get("/search/:keywords", asyncHandler(productController.searchProducts));

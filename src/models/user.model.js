@@ -43,7 +43,7 @@ const userSchema = new Schema(
     avatar: {
       type: String,
     },
-    phoneNumber: { type: String, required: true },
+    phoneNumber: { type: String },
     address: { type: Array, default: [] },
     shopInfo: {
       description: String,

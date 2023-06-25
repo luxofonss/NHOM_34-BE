@@ -5,15 +5,18 @@ const { BadRequestError, NotFoundError } = require("../core/error.response");
 const product = require("../models/product.model");
 const mobile = require("../models/products/mobile.model");
 const tablet = require("../models/products/tablet.model");
+const camera = require("../models/products/camera.model");
+const desktop = require("../models/products/desktop.model");
+const speaker = require("../models/products/speaker.model");
+const monitor = require("../models/products/monitor.model");
+const laptop = require("../models/products/laptop.model");
+const backupCharger = require("../models/products/backupCharger.model");
 const UploadService = require("../services/upload.service");
 const {
   insertVariation,
   findVariationById,
 } = require("../models/repositories/variation.repo");
-<<<<<<< HEAD
-=======
 
->>>>>>> 16374763285cd18f5ddc0193691bd640b53ebde7
 const {
   findAllDraftForShop,
   publishProductByShop,
@@ -33,6 +36,211 @@ const {
 } = require("../utils");
 const CategoryService = require("./category.service");
 const UserService = require("./user.service");
+
+class Product {
+  constructor({
+    name,
+    description,
+    thumb,
+    typeId,
+    condition,
+    preOrder,
+    brand,
+    manufacturerName,
+    manufacturerAddress,
+    manufactureDate,
+    variations,
+    shipping,
+    isDraft,
+    isPublished,
+    attributes,
+    files,
+    sku,
+  }) {
+    this.name = name;
+    this.description = description;
+    this.thumb = thumb;
+    this.typeId = typeId;
+    this.condition = condition;
+    this.preOrder = preOrder;
+    this.brand = brand;
+    this.manufacturerName = manufacturerName;
+    this.manufacturerAddress = manufacturerAddress;
+    this.manufactureDate = manufactureDate;
+    this.variations = JSON.parse(variations);
+    this.shipping = JSON.parse(shipping);
+    this.isDraft = isDraft;
+    this.isPublished = isPublished;
+    this.attributes = JSON.parse(attributes);
+    this.files = files;
+    this.sku = sku;
+  }
+
+  //create new product
+  async createProduct(shopId, productId) {
+    console.log("this: ", this);
+
+    let productThumbs = [];
+    await Promise.all(
+      this.files.map(async (file) => {
+        console.log("file: ", file);
+        if (file.fieldname === "thumb") {
+          let url = await UploadService.uploadSingleImage(file);
+          console.log("url: " + url);
+          productThumbs.push(url);
+        }
+      })
+    );
+
+    console.log("productThumbs:: ", productThumbs);
+
+    let minPrice = 10e9,
+      maxPrice = 0;
+    let quantity = 0;
+    console.log("variations: ", this.variations);
+
+    //cast to number fail NaN
+    this.variations.forEach((item) => {
+      console.log("variations: ", item);
+      if (!item.children) {
+        quantity += item.stock;
+        if (parseInt(item.price) < minPrice) {
+          minPrice = parseInt(item.price);
+        }
+        if (parseInt(item.price) > maxPrice) {
+          maxPrice = parseInt(item.price);
+        }
+      } else {
+        item.children.forEach((subItem) => {
+          console.log("subItem: ", subItem);
+
+          quantity += parseInt(subItem.stock);
+          if (parseInt(subItem.price) < minPrice) {
+            minPrice = parseInt(subItem.price);
+          }
+          if (parseInt(subItem.price) > maxPrice) {
+            maxPrice = parseInt(subItem.price);
+          }
+        });
+      }
+    });
+    this.quantity = quantity;
+    this.minPrice = minPrice;
+    this.maxPrice = maxPrice;
+    const productAttributes = {
+      name: this.name,
+      description: this.description,
+      typeId: this.typeId,
+      condition: this.condition,
+      preOrder: this.preOrder,
+      brand: this.brand,
+      manufacturerName: this.manufacturerName,
+      manufacturerAddress: this.manufacturerAddress,
+      manufactureDate: this.manufactureDate,
+      shipping: this.shipping,
+      isDraft: this.isDraft,
+      thumb: productThumbs,
+      isPublished: this.isPublished,
+      sku: this.sku,
+      attributes: productId,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      quantity: quantity,
+    };
+    const newProduct = await product.create({
+      ...productAttributes,
+      shop: shopId,
+      _id: productId,
+    });
+    if (newProduct) {
+      await Promise.all(
+        this.variations.map(async (variation, index) => {
+          let variationThumb = "";
+          await Promise.all(
+            this.files.map(async (file) => {
+              console.log("fieldname:", file.fieldname);
+              console.log(
+                "equal: ",
+                file.fieldname,
+                `variations[${index}].thumb`,
+                file.fieldname === `variations[${index}].[thumb]`
+              );
+              if (file.fieldname === `variations[${index}].thumb`) {
+                console.log("uploading...");
+                let url = await UploadService.uploadSingleImage(file);
+                console.log("url: ", url);
+                variationThumb = url;
+              }
+            })
+          );
+
+          console.log("variationThumb: ", variationThumb);
+
+          if (variation.children) {
+            await Promise.all(
+              variation.children.map(async (subVariation) => {
+                const newVariation = await insertVariation({
+                  productId: newProduct._id,
+                  keyVariation: variation.name,
+                  keyVariationValue: variation.value,
+                  subVariation: subVariation.name,
+                  subVariationValue: subVariation.value,
+                  stock: subVariation.stock,
+                  price: subVariation.price,
+                  thumb: variationThumb,
+                  isSingle: false,
+                });
+
+                await addVariationToProduct({
+                  id: newProduct._id,
+                  variation: convertToObjectIdMongodb(newVariation._id),
+                });
+              })
+            );
+          } else {
+            const newVariation = await insertVariation({
+              productId: newProduct._id,
+              keyVariation: variation.name,
+              keyVariationValue: variation.value,
+              stock: variation.stock,
+              price: variation.price,
+              thumb: variationThumb,
+            });
+            await addVariationToProduct({
+              id: newProduct._id,
+              variation: convertToObjectIdMongodb(newVariation._id),
+            });
+          }
+        })
+      );
+    }
+
+    return newProduct;
+  }
+
+  async updateProduct(productId, payload) {
+    const {
+      name,
+      description,
+      typeId,
+      condition,
+      preOrder,
+      brand,
+      manufacturerName,
+      manufacturerAddress,
+      manufactureDate,
+      shipping,
+      isDraft,
+      thumb,
+      isPublished,
+      attributes,
+    } = payload;
+
+    console.log("typeId: ", typeId);
+
+    return await updateProductById({ productId, payload, model: product });
+  }
+}
 
 // define Factory class to create products
 class ProductFactory {
@@ -63,7 +271,22 @@ class ProductFactory {
     if (!productClass) {
       throw new BadRequestError(`invalid type ${className}`);
     }
-    return new productClass({ ...payload, files: files }).createProduct(shopId);
+    console.log("payload:: ", payload);
+    // return new productClass({ ...payload, files: files }).createProduct(shopId);
+    const newDetailProduct = await this.productRegistry[className].model.create(
+      JSON.parse(payload.attributes)
+    );
+
+    if (!newDetailProduct) throw new BadRequestError("create new tablet error");
+
+    const ProductInstance = new Product({ ...payload, files });
+    const newProduct = await ProductInstance.createProduct(
+      shopId,
+      newDetailProduct._id
+    );
+    if (!newProduct) throw new BadRequestError("create new product error");
+
+    return newProduct;
   }
 
   //PATCH
@@ -228,292 +451,52 @@ class ProductFactory {
     if (!foundVariation) throw new NotFoundError("Product is not exist!");
     return foundVariation.stock >= quantity;
   }
-}
-// define base product class
-class Product {
-  constructor({
-    name,
-    description,
-    thumb,
-    typeId,
-    condition,
-    preOrder,
-    brand,
-    manufacturerName,
-    manufacturerAddress,
-    manufactureDate,
-    variations,
-    shipping,
-    isDraft,
-    isPublished,
-    attributes,
-    files,
-    sku,
+
+  static async getProductsByCategoryId({
+    limit = 50,
+    page = 1,
+    categoryId,
+    sort = "ctime",
   }) {
-    this.name = name;
-    this.description = description;
-    this.thumb = thumb;
-    this.typeId = typeId;
-    this.condition = condition;
-    this.preOrder = preOrder;
-    this.brand = brand;
-    this.manufacturerName = manufacturerName;
-    this.manufacturerAddress = manufacturerAddress;
-    this.manufactureDate = manufactureDate;
-    this.variations = JSON.parse(variations);
-    this.shipping = JSON.parse(shipping);
-    this.isDraft = isDraft;
-    this.isPublished = isPublished;
-    this.attributes = JSON.parse(attributes);
-    this.files = files;
-    this.sku = sku;
-  }
-
-  //create new product
-  async createProduct(shopId, productId) {
-    console.log("in files: ", this.files);
-
-    let productThumbs = [];
-    await Promise.all(
-      this.files.map(async (file) => {
-        console.log("file: ", file);
-        if (file.fieldname === "thumb") {
-          let url = await UploadService.uploadSingleImage(file);
-          console.log("url: " + url);
-          productThumbs.push(url);
-        }
-      })
-    );
-
-    console.log("productThumbs:: ", productThumbs);
-
-    let minPrice = 10e9,
-      maxPrice = 0;
-    let quantity = 0;
-    console.log("variations: ", this.variations);
-
-    //cast to number fail NaN
-    this.variations.forEach((item) => {
-      console.log("variations: ", item);
-      if (!item.children) {
-        quantity += item.stock;
-        if (parseInt(item.price) < minPrice) {
-          minPrice = parseInt(item.price);
-        }
-        if (parseInt(item.price) > maxPrice) {
-          maxPrice = parseInt(item.price);
-        }
-      } else {
-        item.children.forEach((subItem) => {
-          console.log("subItem: ", subItem);
-
-          quantity += parseInt(subItem.stock);
-          if (parseInt(subItem.price) < minPrice) {
-            minPrice = parseInt(subItem.price);
-          }
-          if (parseInt(subItem.price) > maxPrice) {
-            maxPrice = parseInt(subItem.price);
-          }
-        });
-      }
-    });
-    this.quantity = quantity;
-    this.minPrice = minPrice;
-    this.maxPrice = maxPrice;
-    const productAttributes = {
-      name: this.name,
-      description: this.description,
-      typeId: this.typeId,
-      condition: this.condition,
-      preOrder: this.preOrder,
-      brand: this.brand,
-      manufacturerName: this.manufacturerName,
-      manufacturerAddress: this.manufacturerAddress,
-      manufactureDate: this.manufactureDate,
-      shipping: this.shipping,
-      isDraft: this.isDraft,
-      thumb: productThumbs,
-      isPublished: this.isPublished,
-      sku: this.sku,
-      attributes: productId,
-      minPrice: minPrice,
-      maxPrice: maxPrice,
-      quantity: quantity,
+    const filter = {
+      isPublished: true,
+      typeId: convertToObjectIdMongodb(categoryId),
     };
-    const newProduct = await product.create({
-      ...productAttributes,
-      shop: shopId,
-      _id: productId,
+    return await findAllProducts({
+      limit,
+      sort,
+      filter,
+      page,
+      select: ["name", "thumb", "description", "price", "thumb", "shop"],
     });
-    if (newProduct) {
-      await Promise.all(
-        this.variations.map(async (variation, index) => {
-          let variationThumb = "";
-          await Promise.all(
-            this.files.map(async (file) => {
-              console.log("fieldname:", file.fieldname);
-              console.log(
-                "equal: ",
-                file.fieldname,
-                `variations[${index}].thumb`,
-                file.fieldname === `variations[${index}].[thumb]`
-              );
-              if (file.fieldname === `variations[${index}].thumb`) {
-                console.log("uploading...");
-                let url = await UploadService.uploadSingleImage(file);
-                console.log("url: ", url);
-                variationThumb = url;
-              }
-            })
-          );
-
-          console.log("variationThumb: ", variationThumb);
-
-          if (variation.children) {
-            await Promise.all(
-              variation.children.map(async (subVariation) => {
-                const newVariation = await insertVariation({
-                  productId: newProduct._id,
-                  keyVariation: variation.name,
-                  keyVariationValue: variation.value,
-                  subVariation: subVariation.name,
-                  subVariationValue: subVariation.value,
-                  stock: subVariation.stock,
-                  price: subVariation.price,
-                  thumb: variationThumb,
-                  isSingle: false,
-                });
-
-                await addVariationToProduct({
-                  id: newProduct._id,
-                  variation: convertToObjectIdMongodb(newVariation._id),
-                });
-              })
-            );
-          } else {
-            const newVariation = await insertVariation({
-              productId: newProduct._id,
-              keyVariation: variation.name,
-              keyVariationValue: variation.value,
-              stock: variation.stock,
-              price: variation.price,
-              thumb: variationThumb,
-            });
-            await addVariationToProduct({
-              id: newProduct._id,
-              variation: convertToObjectIdMongodb(newVariation._id),
-            });
-          }
-        })
-      );
-    }
-
-    return newProduct;
-  }
-
-  async updateProduct(productId, payload) {
-    const {
-      name,
-      description,
-      typeId,
-      condition,
-      preOrder,
-      brand,
-      manufacturerName,
-      manufacturerAddress,
-      manufactureDate,
-      shipping,
-      isDraft,
-      thumb,
-      isPublished,
-      attributes,
-    } = payload;
-
-    console.log("typeId: ", typeId);
-
-    return await updateProductById({ productId, payload, model: product });
   }
 }
 
-//define sub classes for different products
-// class Clothing extends Product {
-//   async createProduct() {
-//     const newClothing = await clothing.create(this.attributes);
-//     if (!newClothing) throw new BadRequestError("create new clothing error");
+// define base product class
 
-//     const newProduct = await super.createProduct(newClothing._id);
-//     if (!newProduct) throw new BadRequestError("create new product error");
+class Mobile extends Product {}
 
-//     return newProduct;
-//   }
-
-//   async updateProduct(productId) {
-//     //1. remove attr has null || undefined
-//     const objectParams = removeUndefinedObject(this);
-//     console.log("objectParams: ", objectParams);
-//     //2. check update field
-//     if (objectParams.attributes) {
-//       //update child
-//       await updateProductById({ productId, objectParams, model: clothing });
-//     }
-
-//     const updateProduct = await super.updateProduct(productId, objectParams);
-//     return updateProduct;
-//   }
-// }
-
-class Mobile extends Product {
-  async createProduct(shopId) {
-    const newMobile = await mobile.create(this.attributes);
-
-    if (!newMobile) throw new BadRequestError("create new mobile error");
-
-    const newProduct = await super.createProduct(shopId, newMobile._id);
-    if (!newProduct) throw new BadRequestError("create new product error");
-
-    return newProduct;
-  }
-
-  async getProductAttributes() {
-    console.log("test");
-    const attributes = [];
-    mobile.schema.eachPath(function (path) {
-      console.log(path);
-      attributes.push(path);
-      console.log(path);
-    });
-
-    return attributes;
-  }
-}
-
-class Tablet extends Product {
-  async createProduct() {
-    const newTablet = await tablet.create(this.attributes);
-
-    if (!newTablet) throw new BadRequestError("create new tablet error");
-
-    const newProduct = await super.createProduct(newTablet._id);
-    if (!newProduct) throw new BadRequestError("create new product error");
-
-    return newProduct;
-  }
-
-  async getProductAttributes() {
-    const attributes = [];
-    tablet.schema.eachPath(function (path) {
-      attributes.push(path);
-      console.log(path);
-    });
-
-    return attributes;
-  }
-}
+class Tablet extends Product {}
+class Camera extends Product {}
+class BackupCharger extends Product {}
+class Speaker extends Product {}
+class Desktop extends Product {}
+class Monitor extends Product {}
+class Laptop extends Product {}
 
 // register product type
-// ProductFactory.registerProductType("Electronic", Electronic);
-// ProductFactory.registerProductType("Clothing", Clothing);
+
 ProductFactory.registerProductType("Mobile", Mobile, mobile);
 ProductFactory.registerProductType("Tablet", Tablet, tablet);
+ProductFactory.registerProductType("Camera", Camera, camera);
+ProductFactory.registerProductType("Desktop", Desktop, desktop);
+ProductFactory.registerProductType("Monitor", Monitor, monitor);
+ProductFactory.registerProductType("Laptop", Laptop, laptop);
+ProductFactory.registerProductType(
+  "BackupCharger",
+  BackupCharger,
+  backupCharger
+);
+ProductFactory.registerProductType("Speaker", Speaker, speaker);
 
 module.exports = ProductFactory;

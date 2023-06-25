@@ -3,6 +3,12 @@ const { ErrorResponse } = require("../core/error.response");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const userModel = require("../models/user.model");
 const UserService = require("../services/user.service");
+const crypto = require("node:crypto");
+const createKeys = require("../utils/createKey");
+const { createTokenPair } = require("./authUtils");
+const KeyStoreService = require("../services/keyToken.service");
+const { USER_ROLE } = require("../constant");
+
 require("dotenv").config();
 
 passport.use(
@@ -28,12 +34,12 @@ passport.use(
         defaultUser.googleId
       );
 
+      console.log("foundUser:: ", user);
+
       if (user) {
         req.user = user;
         return cb(null, user);
-      }
-
-      if (!user) {
+      } else {
         try {
           const newUser = await UserService.createByOAuth({
             name: defaultUser.fullName,
@@ -41,6 +47,37 @@ passport.use(
             oauthId: defaultUser.googleId,
             oauthService: "Google",
           });
+
+          if (newUser) {
+            // create public key, private key
+            const { privateKey, publicKey } = createKeys();
+            console.log({ privateKey, publicKey });
+
+            // create token pair
+            const publicKeyObject = crypto.createPublicKey(publicKey);
+            const privateKeyObject = crypto.createPrivateKey(privateKey);
+
+            const tokens = await createTokenPair(
+              {
+                userId: newUser._id,
+                email: newUser.email,
+                roles: [USER_ROLE.SHOP],
+              },
+              publicKeyObject,
+              privateKeyObject
+            );
+
+            const keyStore = await KeyStoreService.createKeyToken({
+              userId: newUser._id,
+              privateKey,
+              publicKey,
+              refreshToken: tokens.refreshToken,
+            });
+
+            if (!keyStore) {
+              throw new BadRequestError("Error: Key token is not available");
+            }
+          }
           return cb(null, newUser);
         } catch (error) {
           cb(error, null);

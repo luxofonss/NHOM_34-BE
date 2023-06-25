@@ -47,4 +47,4 @@ const backupChargerSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, backupChargersSchema);
+module.exports = model(DOCUMENT_NAME, backupChargerSchema);

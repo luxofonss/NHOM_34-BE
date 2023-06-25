@@ -8,6 +8,8 @@ const development = {
     host: process.env.DEV_DB_HOST || "127.0.0.1",
     port: process.env.DEV_DB_PORT || 27017,
     name: process.env.DEV_DB_NAME,
+    username: "",
+    password: "",
   },
 };
 
@@ -19,6 +21,8 @@ const production = {
     host: process.env.PROD_DB_HOST || "127.0.0.1",
     port: process.env.PROD_DB_PORT || 27017,
     name: process.env.PROD_DB_NAME,
+    username: process.env.PROD_DB_USERNAME,
+    password: process.env.PROD_DB_PASSWORD,
   },
 };
 

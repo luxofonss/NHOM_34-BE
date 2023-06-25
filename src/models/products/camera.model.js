@@ -1,7 +1,7 @@
 "use strict";
 
 const { Schema, Types, model } = require("mongoose");
-const DOCUMENT_NAME = "camera";
+const DOCUMENT_NAME = "Camera";
 const COLLECTION_NAME = "camera";
 
 const cameraSchema = new Schema(
@@ -11,24 +11,24 @@ const cameraSchema = new Schema(
       required: true,
     },
     lensType: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     screenSize: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     cameraModel: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     resolution: {
       type: Number,
       required: true,
     },
     aperture: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     memoryCard: {
       type: String,
