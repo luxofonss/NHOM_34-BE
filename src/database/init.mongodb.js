@@ -14,9 +14,11 @@ class Database {
 
   connect(type = "mongodb") {
     mongoose.set("debug", { color: true });
+    const dbName = process.env.PROD_DB_NAME;
     mongoose
       .connect(connectString, {
         maxPoolSize: 50,
+        dbName,
       })
       .then((_) => {
         console.log("Connect database successfully!");
