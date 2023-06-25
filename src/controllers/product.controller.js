@@ -129,6 +129,16 @@ class ProductController {
       }),
     }).send(res);
   };
+
+  static getProductsByCategoryId = async (req, res) => {
+    console.log("req:: ", req.query, req.params);
+    new SuccessResponse({
+      message: "Get products successfully!",
+      metadata: await ProductFactory.getProductsByCategoryId({
+        categoryId: req.params.id,
+      }),
+    }).send(res);
+  };
 }
 
 module.exports = ProductController;

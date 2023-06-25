@@ -21,6 +21,7 @@ router.get("/auth/profile", [
 // OAuth
 router.get("/auth/login/google", AccessController.handleLoginGoogle);
 router.get("/auth/google/callback", AccessController.handleLoginGoogleCallback);
+router.get("/oauth/success", asyncHandler(AccessController.oauthSuccess));
 
 // Token
 router.get(

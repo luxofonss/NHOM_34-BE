@@ -295,7 +295,77 @@ class AccessService {
     };
   };
 
-  static oauthSuccess = async () => {};
+  static oauthSuccess = async (req, res) => {
+    console.log("req:: ", req.user);
+    const cookies = req.cookies;
+    if (req.user) {
+      const userInfo = await UserService.findByUserId({ userId: req.user._id });
+      if (!userInfo) throw new AuthFailureError("Unauthorized");
+
+      // create public key, private key
+      const keyStore = await KeyStoreService.findByUserId(userInfo._id);
+      if (!keyStore) throw new AuthFailureError("Error: User not found!");
+
+      // create token pair
+      const publicKeyObject = crypto.createPublicKey(keyStore.publicKey);
+      const privateKeyObject = crypto.createPrivateKey(keyStore.privateKey);
+
+      const tokens = await createTokenPair(
+        {
+          userId: userInfo._id,
+          email: userInfo.email,
+          roles: userInfo.roles,
+        },
+        publicKeyObject,
+        privateKeyObject
+      );
+
+      const userKeyStore = await KeyStoreService.findByUserId(userInfo._id);
+
+      const newRefreshTokens = !cookies?.jwt
+        ? userKeyStore.refreshToken
+        : userKeyStore.refreshToken.filter((rt) => rt !== cookies.jwt);
+
+      // update keyToken schema
+      await KeyStoreService.updateKeyToken({
+        userId: userInfo._id,
+        oldRefreshToken: !cookies?.jwt ? null : cookies.jwt,
+        refreshToken: [...newRefreshTokens, tokens.refreshToken],
+      });
+
+      // clear old refresh token in cookies
+      if (cookies?.jwt) {
+        res.clearCookie("jwt", {
+          httpOnly: true,
+          sameSite: "None",
+          secure: true,
+        });
+      }
+
+      res.cookie("jwt", tokens.refreshToken, COOKIE_OPTIONS);
+
+      res.cookie("userId", userInfo._id, COOKIE_OPTIONS);
+
+      console.log("hereee");
+
+      return {
+        user: getInfoData({
+          object: userInfo,
+          fields: [
+            "_id",
+            "email",
+            "name",
+            "roles",
+            "verify",
+            "address",
+            "avatar",
+            "shopInfo",
+          ],
+        }),
+        tokens,
+      };
+    } else throw new BadRequestError("Bad request");
+  };
 }
 
 module.exports = AccessService;

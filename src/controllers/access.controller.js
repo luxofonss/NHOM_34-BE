@@ -74,6 +74,13 @@ class AccessController {
     accessType: "offline",
     prompt: "consent",
   });
+
+  static oauthSuccess = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Login success",
+      metadata: await AccessService.oauthSuccess(req, res),
+    }).send(res);
+  };
 }
 
 module.exports = AccessController;

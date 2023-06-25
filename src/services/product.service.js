@@ -10,10 +10,6 @@ const {
   insertVariation,
   findVariationById,
 } = require("../models/repositories/variation.repo");
-<<<<<<< HEAD
-=======
-
->>>>>>> 16374763285cd18f5ddc0193691bd640b53ebde7
 const {
   findAllDraftForShop,
   publishProductByShop,
@@ -228,7 +224,27 @@ class ProductFactory {
     if (!foundVariation) throw new NotFoundError("Product is not exist!");
     return foundVariation.stock >= quantity;
   }
+
+  static async getProductsByCategoryId({
+    limit = 50,
+    page = 1,
+    categoryId,
+    sort = "ctime",
+  }) {
+    const filter = {
+      isPublished: true,
+      typeId: convertToObjectIdMongodb(categoryId),
+    };
+    return await findAllProducts({
+      limit,
+      sort,
+      filter,
+      page,
+      select: ["name", "thumb", "description", "price", "thumb", "shop"],
+    });
+  }
 }
+
 // define base product class
 class Product {
   constructor({
