@@ -34,7 +34,7 @@ const attributeMobileList = [
     },
   },
   {
-    name: "nOfPrimaryCamera",
+    name: "numberOfPrimaryCamera",
     detail: {
       name: { vi: "Số camera" },
       type: "number",
@@ -86,7 +86,7 @@ const attributeMobileList = [
     },
   },
   {
-    name: "nOfSIMCardSlot",
+    name: "numberOfSIMCardSlot",
     detail: {
       name: { vi: "Số khe cắm sim" },
       type: "number",
@@ -780,7 +780,7 @@ const attributeDesktopComputerList = [
     },
   },
   {
-    name: "nOfCors",
+    name: "numberOfCors",
     detail: {
       name: { vi: "Số lõi" },
       type: "number",
@@ -1078,7 +1078,7 @@ const attributeLaptopList = [
     },
   },
   {
-    name: "nOfCors",
+    name: "numberOfCors",
     detail: {
       name: { vi: "Số lõi" },
       type: "number",
