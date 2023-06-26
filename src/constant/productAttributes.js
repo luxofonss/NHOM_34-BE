@@ -573,7 +573,7 @@ const attributeWatchList = [
     name: "diameter",
     detail: {
       name: { vi: "Đường kính vỏ đồng hồ" },
-      type: "n",
+      type: "number",
       unit: "mm",
     },
   },
@@ -588,7 +588,7 @@ const attributeWatchList = [
     name: "depthWater",
     detail: {
       name: { vi: "Độ sâu chống nước" },
-      type: "n",
+      type: "number",
       unit: "m",
     },
   },
@@ -804,7 +804,7 @@ const attributeDesktopComputerList = [
     name: "CPUfrequency",
     detail: {
       name: { vi: "Tần số CPU" },
-      type: "n",
+      type: "number",
       unit: "GHz",
     },
   },
@@ -861,7 +861,7 @@ const attributeSpeakerList = [
     name: "frequency",
     detail: {
       name: { vi: "Tần số" },
-      type: "n",
+      type: "number",
       unit: "Hz",
     },
   },
@@ -1095,7 +1095,7 @@ const attributeLaptopList = [
     name: "CPUfrequency",
     detail: {
       name: { vi: "Tần số CPU" },
-      type: "n",
+      type: "number",
       unit: "GHz",
     },
   },
@@ -1159,7 +1159,7 @@ const attributeCameraList = [
     name: "screenSize",
     detail: {
       name: { vi: "Kích thước màn hình" },
-      type: "n",
+      type: "number",
       unit: "inches",
     },
   },
@@ -1167,7 +1167,7 @@ const attributeCameraList = [
     name: "resolution",
     detail: {
       name: { vi: "Độ phân giải" },
-      type: "n",
+      type: "number",
       unit: "p",
     },
   },
@@ -1242,7 +1242,7 @@ const attributeCameraList = [
     name: "standardRange",
     detail: {
       name: { vi: "Phạm vi tiêu chuẩn" },
-      type: "n",
+      type: "number",
       unit: "ISO",
     },
   },
