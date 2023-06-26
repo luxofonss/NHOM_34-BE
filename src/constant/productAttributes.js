@@ -21,7 +21,7 @@ const attributeMobileList = [
     name: "storeCapacity",
     detail: {
       name: { vi: "Dung lượng lưu trữ" },
-      type: "number",
+      type: "n",
       unit: "GB",
     },
   },
@@ -29,15 +29,15 @@ const attributeMobileList = [
     name: "primaryCameraResolution",
     detail: {
       name: { vi: "Độ phân giải camera chính" },
-      type: "number",
+      type: "n",
       unit: "MP",
     },
   },
   {
-    name: "numberOfPrimaryCamera",
+    name: "nOfPrimaryCamera",
     detail: {
       name: { vi: "Số camera" },
-      type: "number",
+      type: "n",
       unit: "MP",
     },
   },
@@ -58,7 +58,7 @@ const attributeMobileList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -66,7 +66,7 @@ const attributeMobileList = [
     name: "ram",
     detail: {
       name: { vi: "RAM" },
-      type: "number",
+      type: "n",
       unit: "GB",
     },
   },
@@ -74,7 +74,7 @@ const attributeMobileList = [
     name: "rom",
     detail: {
       name: { vi: "ROM" },
-      type: "number",
+      type: "n",
       unit: "GB",
     },
   },
@@ -86,17 +86,17 @@ const attributeMobileList = [
     },
   },
   {
-    name: "numberOfSIMCardSlot",
+    name: "nOfSIMCardSlot",
     detail: {
       name: { vi: "Số khe cắm sim" },
-      type: "number",
+      type: "n",
     },
   },
   {
     name: "SIMType",
     detail: {
       name: { vi: "Loại sim" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -110,7 +110,7 @@ const attributeMobileList = [
     name: "screenSize",
     detail: {
       name: { vi: "Kích thước màn hình" },
-      type: "number",
+      type: "n",
       unit: "inches",
     },
   },
@@ -153,7 +153,7 @@ const attributeMobileList = [
     name: "batteryCapacity.value",
     detail: {
       name: { vi: "Dung lượng pin" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -172,7 +172,7 @@ const attributeMobileList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -180,7 +180,7 @@ const attributeMobileList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -188,7 +188,7 @@ const attributeMobileList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -213,7 +213,7 @@ const attributeTabletList = [
     name: "storeCapacity",
     detail: {
       name: { vi: "Dung lượng lưu trữ" },
-      type: "number",
+      type: "n",
       unit: "GB",
     },
   },
@@ -221,7 +221,7 @@ const attributeTabletList = [
     name: "primaryCameraResolution",
     detail: {
       name: { vi: "Độ phân giải camera" },
-      type: "number",
+      type: "n",
       unit: "MP",
     },
   },
@@ -242,7 +242,7 @@ const attributeTabletList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -250,7 +250,7 @@ const attributeTabletList = [
     name: "screenSize",
     detail: {
       name: { vi: "Kích thước màn hình" },
-      type: "number",
+      type: "n",
       unit: "inches",
     },
   },
@@ -272,7 +272,7 @@ const attributeTabletList = [
     name: "batteryCapacity.value",
     detail: {
       name: { vi: "Dung lượng pin" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -291,7 +291,7 @@ const attributeTabletList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -299,7 +299,7 @@ const attributeTabletList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -307,7 +307,7 @@ const attributeTabletList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -392,7 +392,7 @@ const attributeJacketList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -400,7 +400,7 @@ const attributeJacketList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -408,7 +408,7 @@ const attributeJacketList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -439,7 +439,7 @@ const attributeMonitorList = [
     name: "weight",
     detail: {
       name: { vi: "Cân nặng" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -491,7 +491,7 @@ const attributeMonitorList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -499,7 +499,7 @@ const attributeMonitorList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -507,7 +507,7 @@ const attributeMonitorList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -539,7 +539,7 @@ const attributeWatchList = [
     name: "clockFace",
     detail: {
       name: { vi: "Mặt đồng hồ" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -603,7 +603,7 @@ const attributeWatchList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -611,7 +611,7 @@ const attributeWatchList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -619,7 +619,7 @@ const attributeWatchList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -633,17 +633,17 @@ const attributeBackupChargerList = [
     },
   },
   {
-    name: "numberPort",
+    name: "nPort",
     detail: {
       name: { vi: "Số cổng kết nối" },
-      type: "number",
+      type: "n",
     },
   },
   {
     name: "inputStyle",
     detail: {
       name: { vi: "Kiểu đầu vào" },
-      type: "number",
+      type: "n",
       unit: "GB",
     },
   },
@@ -664,7 +664,7 @@ const attributeBackupChargerList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -672,7 +672,7 @@ const attributeBackupChargerList = [
     name: "capacity",
     detail: {
       name: { vi: "Dung lượng sạc" },
-      type: "number",
+      type: "n",
       unit: "mAh",
     },
   },
@@ -687,7 +687,7 @@ const attributeBackupChargerList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -695,7 +695,7 @@ const attributeBackupChargerList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -703,7 +703,7 @@ const attributeBackupChargerList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -748,7 +748,7 @@ const attributeDesktopComputerList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -780,10 +780,10 @@ const attributeDesktopComputerList = [
     },
   },
   {
-    name: "numberOfCors",
+    name: "nOfCors",
     detail: {
       name: { vi: "Số lõi" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -812,7 +812,7 @@ const attributeDesktopComputerList = [
     name: "weight",
     detail: {
       name: { vi: "Trọng lượng" },
-      type: "number",
+      type: "n",
       unit: "kg",
     },
   },
@@ -821,7 +821,7 @@ const attributeDesktopComputerList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -829,7 +829,7 @@ const attributeDesktopComputerList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -837,7 +837,7 @@ const attributeDesktopComputerList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -882,7 +882,7 @@ const attributeSpeakerList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -947,7 +947,7 @@ const attributeSpeakerList = [
     name: "weight",
     detail: {
       name: { vi: "Trọng lượng" },
-      type: "number",
+      type: "n",
       unit: "kg",
     },
   },
@@ -956,7 +956,7 @@ const attributeSpeakerList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -964,7 +964,7 @@ const attributeSpeakerList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -972,7 +972,7 @@ const attributeSpeakerList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -1046,7 +1046,7 @@ const attributeLaptopList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -1078,10 +1078,10 @@ const attributeLaptopList = [
     },
   },
   {
-    name: "numberOfCors",
+    name: "nOfCors",
     detail: {
       name: { vi: "Số lõi" },
-      type: "number",
+      type: "n",
     },
   },
   {
@@ -1103,7 +1103,7 @@ const attributeLaptopList = [
     name: "weight",
     detail: {
       name: { vi: "Trọng lượng" },
-      type: "number",
+      type: "n",
       unit: "kg",
     },
   },
@@ -1112,7 +1112,7 @@ const attributeLaptopList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -1120,7 +1120,7 @@ const attributeLaptopList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -1128,7 +1128,7 @@ const attributeLaptopList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -1203,7 +1203,7 @@ const attributeCameraList = [
     name: "warrantyDuration",
     detail: {
       name: { vi: "Thời hạn bảo hành" },
-      type: "number",
+      type: "n",
       unit: "Tháng",
     },
   },
@@ -1250,7 +1250,7 @@ const attributeCameraList = [
     name: "weight",
     detail: {
       name: { vi: "Trọng lượng" },
-      type: "number",
+      type: "n",
       unit: "kg",
     },
   },
@@ -1259,7 +1259,7 @@ const attributeCameraList = [
     name: "dimensions.L",
     detail: {
       name: { vi: "Chiều dài" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -1267,7 +1267,7 @@ const attributeCameraList = [
     name: "dimensions.W",
     detail: {
       name: { vi: "Chiều rộng" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
@@ -1275,7 +1275,7 @@ const attributeCameraList = [
     name: "dimensions.H",
     detail: {
       name: { vi: "Chiều cao" },
-      type: "number",
+      type: "n",
       unit: "mm",
     },
   },
