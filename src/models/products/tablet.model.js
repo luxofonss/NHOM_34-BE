@@ -8,7 +8,7 @@ const tabletSchema = new Schema(
   {
     model: {
       type: String,
-      required: true,
+      required: false,
     },
     storeCapacity: {
       type: Number,
@@ -29,7 +29,7 @@ const tabletSchema = new Schema(
     },
     registrationId: {
       type: Number,
-      required: true,
+      required: false,
     },
     EReader: {
       type: Boolean,
