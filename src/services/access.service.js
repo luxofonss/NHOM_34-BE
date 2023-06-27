@@ -296,7 +296,7 @@ class AccessService {
   };
 
   static oauthSuccess = async (req, res) => {
-    console.log("req:: ", req.user);
+    console.log("req:: ", req);
     const cookies = req.cookies;
     if (req.user) {
       const userInfo = await UserService.findByUserId({ userId: req.user._id });

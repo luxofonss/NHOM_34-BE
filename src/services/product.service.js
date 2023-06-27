@@ -391,6 +391,7 @@ class ProductFactory {
         "variations",
         "isDraft",
         "sold",
+        "quantity",
         "sku",
         "minPrice",
         "maxPrice",
@@ -403,6 +404,7 @@ class ProductFactory {
     sold,
     limit = 10,
     page = 1,
+    shop,
     filter = {},
     sort = "ctime",
   }) {
@@ -414,6 +416,7 @@ class ProductFactory {
       page,
       filter,
       sort,
+      shop,
       select: [
         "name",
         "thumb",
