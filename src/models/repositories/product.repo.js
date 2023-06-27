@@ -126,6 +126,7 @@ const findAllProductsForShop = async ({
   limit,
   page,
   filter,
+  shop,
   sort,
   select,
 }) => {
@@ -146,11 +147,12 @@ const findAllProductsForShop = async ({
   console.log("stock:: ", stock);
   const productFilter = {
     ...filter,
+    shop: convertToObjectIdMongodb(shop),
     sold: {
       $gte: sold?.min ? parseInt(sold?.min) : -1,
       $lte: sold?.max ? parseInt(sold?.max) : 10e9,
     },
-    stock: {
+    quantity: {
       $gte: stock?.min ? parseInt(stock?.min) : -1,
       $lte: stock?.max ? parseInt(stock?.max) : 10e9,
     },
@@ -264,7 +266,8 @@ const unpublishProductByShop = async ({ shop, productId }) => {
 const getProductById = async (productId) => {
   return await product
     .findOne({ _id: convertToObjectIdMongodb(productId) })
-    .lean();
+    .lean()
+    .exec();
 };
 
 // const checkProductByServer = async( products) => {
