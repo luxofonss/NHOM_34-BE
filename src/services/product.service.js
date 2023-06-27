@@ -28,6 +28,7 @@ const {
   updateProductById,
   addVariationToProduct,
   findAllProductsForShop,
+  findAllProductsForUser,
 } = require("../models/repositories/product.repo");
 const {
   removeUndefinedObject,
@@ -349,7 +350,51 @@ class ProductFactory {
       sort,
       filter,
       page,
-      select: ["name", "thumb", "description", "price", "thumb", "shop"],
+      select: [
+        "name",
+        "thumb",
+        "description",
+        "price",
+        "thumb",
+        "shop",
+        "minPrice",
+        "sold",
+      ],
+    });
+  }
+
+  static async findAllProductsForUser({
+    minPrice,
+    maxPrice,
+    typeId,
+    name,
+    limit = 10,
+    page = 1,
+    filter = {},
+    sort = "ctime",
+  }) {
+    console.log("filter:: ", filter);
+    return await findAllProductsForUser({
+      minPrice,
+      maxPrice,
+      limit,
+      name,
+      page,
+      filter,
+      sort,
+      typeId,
+      select: [
+        "name",
+        "thumb",
+        "description",
+        "thumb",
+        "variations",
+        "isDraft",
+        "sold",
+        "sku",
+        "minPrice",
+        "maxPrice",
+      ],
     });
   }
 

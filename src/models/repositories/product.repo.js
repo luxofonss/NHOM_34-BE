@@ -7,6 +7,8 @@ const {
   getUnselectData,
   convertToObjectIdMongodb,
 } = require("../../utils/index");
+const CategoryService = require("../../services/category.service");
+const { isEmpty } = require("lodash");
 
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
@@ -29,6 +31,7 @@ const findOneProduct = async ({ productId, unSelect }) => {
 const findAllProducts = async ({ limit, page, filter, sort, select }) => {
   const skip = limit * (page - 1);
   const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  console.log("select:: ", select);
   const products = await product
     .find(filter)
     .sort(sortBy)
@@ -38,6 +41,83 @@ const findAllProducts = async ({ limit, page, filter, sort, select }) => {
     .lean()
     .exec();
   return products;
+};
+
+const findAllProductsForUser = async ({
+  minPrice,
+  maxPrice,
+  limit,
+  name,
+  page,
+  filter,
+  sort,
+  typeId,
+  select,
+}) => {
+  const skip = limit * (page - 1);
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  let listTypeId = [];
+
+  console.log("filter:: ", filter);
+
+  let productFilter = {
+    isPublished: true,
+    minPrice: {
+      $gte: minPrice ? parseInt(minPrice) : -1,
+      $lte: maxPrice ? parseInt(maxPrice) : 10e9,
+    },
+  };
+
+  if (!isEmpty(filter)) {
+    productFilter = { ...filter, ...productFilter };
+  }
+  if (!isEmpty(typeId)) {
+    const category = await CategoryService.getCategoryById(typeId);
+    category.subTypes.forEach((item) => {
+      listTypeId.push(item._id);
+    });
+
+    productFilter.typeId = { $in: listTypeId };
+  }
+
+  if (!isEmpty(name)) {
+    const regexSearch = new RegExp(name);
+    productFilter.name = { $regex: regexSearch, $options: "i" };
+  }
+
+  console.log("productFilter:: ", productFilter);
+
+  const [products, count] = await Promise.all([
+    product
+      .aggregate([
+        { $match: productFilter },
+        // {
+        //   $lookup: {
+        //     from: "variation",
+        //     let: { variations: "$variations" },
+        //     pipeline: [
+        //       {
+        //         $match: {
+        //           $expr: { $in: ["$_id", "$$variations"] },
+        //         },
+        //       },
+        //       {
+        //         $project: variationProjection,
+        //       },
+        //     ],
+        //     as: "variations",
+        //   },
+        // },
+        { $sort: sortBy },
+        { $skip: skip },
+        { $limit: limit },
+        { $project: getSelectData(select) },
+      ])
+      .exec(),
+    product.countDocuments(productFilter),
+  ]);
+
+  return { products, count };
 };
 
 const findAllProductsForShop = async ({
@@ -244,4 +324,5 @@ module.exports = {
   checkProductByServer,
   addVariationToProduct,
   findAllProductsForShop,
+  findAllProductsForUser,
 };

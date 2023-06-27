@@ -10,7 +10,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get("/category/:id", asyncHandler(productController.getProductsByCategoryId));
 router.get("/attributes", asyncHandler(productController.getProductAttributes));
 router.get("/filter", asyncHandler(productController.filterProducts));
-router.get("/search/:keywords", asyncHandler(productController.searchProducts));
+router.get("/search", asyncHandler(productController.findAllProductsForUser));
 router.get("", asyncHandler(productController.findAllProducts));
 router.get("/:productId", asyncHandler(productController.findOneProduct));
 

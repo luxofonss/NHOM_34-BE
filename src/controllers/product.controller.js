@@ -86,6 +86,29 @@ class ProductController {
     }).send(res);
   };
 
+  static findAllProductsForUser = async (req, res) => {
+    console.log("query: ", req.query);
+    new SuccessResponse({
+      message: "Find all products successfully!",
+      metadata: await ProductFactory.findAllProductsForUser({
+        minPrice: req.query.minPrice,
+        maxPrice: req.query.maxPrice,
+        limit: req.query.pageSize,
+        name: req.query.name,
+        page: req.query.page,
+        typeId: req.query.typeId,
+        filter: req.query?.filter ? JSON.parse(req.query.filter) : {},
+      }),
+    }).send(res);
+  };
+
+  static searchProducts = async (req, res) => {
+    new SuccessResponse({
+      message: "Search products successfully!",
+      metadata: await ProductFactory.searchProducts(req.params),
+    }).send(res);
+  };
+
   static findAllDraftForShop = async (req, res) => {
     console.log("find all draft for shop");
     new SuccessResponse({
@@ -102,13 +125,6 @@ class ProductController {
       metadata: await ProductFactory.findAllPublishForShop({
         shop: req.user.userId,
       }),
-    }).send(res);
-  };
-
-  static searchProducts = async (req, res) => {
-    new SuccessResponse({
-      message: "Search products successfully!",
-      metadata: await ProductFactory.searchProducts(req.params),
     }).send(res);
   };
 

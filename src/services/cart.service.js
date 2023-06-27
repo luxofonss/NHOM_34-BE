@@ -61,6 +61,7 @@ class CartService {
   static async updateUserCart({ userId, product, checked = false }) {
     console.log("product", product);
     let able = false;
+
     if (checked) {
       able = true;
     } else {
@@ -82,12 +83,13 @@ class CartService {
       };
 
       const foundProduct = await cart.findOne(query).exec();
+      console.log("check here:: ", foundProduct);
+
       if (foundProduct) {
         return await cart
           .findOneAndUpdate(
             query,
             {
-              productCount: 3,
               "products.$[outer].products.$[inner].quantity": quantity,
             },
             {
@@ -99,31 +101,62 @@ class CartService {
           )
           .exec();
       } else {
-        return await cart
-          .findOneAndUpdate(
-            {
-              userId: convertToObjectIdMongodb(userId),
-              "products.shopId": convertToObjectIdMongodb(product.shopId),
-              status: "active",
-            },
-            {
-              $push: {
-                "products.$[shop].products": {
-                  productId,
-                  variationId,
-                  quantity,
+        const query2 = {
+          userId: convertToObjectIdMongodb(userId),
+          "products.shopId": convertToObjectIdMongodb(product.shopId),
+          status: "active",
+        };
+
+        const foundProduct2 = await cart.findOne(query2).exec();
+        console.log("check here:: ", foundProduct2);
+
+        if (!foundProduct2) {
+          return await cart
+            .findOneAndUpdate(
+              {
+                userId: convertToObjectIdMongodb(userId),
+                status: "active",
+              },
+              {
+                $push: {
+                  products: {
+                    shopId: product.shopId,
+                    products: [{ productId, variationId, quantity }],
+                  },
                 },
               },
-            },
-            {
-              arrayFilters: [
-                { "shop.shopId": convertToObjectIdMongodb(product.shopId) },
-              ],
-              new: true,
-              upsert: true,
-            }
-          )
-          .exec();
+              {
+                new: true,
+                upsert: true,
+              }
+            )
+            .exec();
+        } else
+          return await cart
+            .findOneAndUpdate(
+              {
+                userId: convertToObjectIdMongodb(userId),
+                "products.shopId": convertToObjectIdMongodb(product.shopId),
+                status: "active",
+              },
+              {
+                $push: {
+                  "products.$[inner].products": {
+                    productId,
+                    variationId,
+                    quantity,
+                  },
+                },
+              },
+              {
+                arrayFilters: [
+                  { "inner.shopId": convertToObjectIdMongodb(product.shopId) },
+                ],
+                new: true,
+                upsert: true,
+              }
+            )
+            .exec();
       }
     } else {
       throw new BadRequestError("Product is out of stock!");
@@ -470,4 +503,3 @@ class CartService {
 }
 
 module.exports = CartService;
-
