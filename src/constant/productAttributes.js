@@ -196,7 +196,7 @@ const attributeMobileList = [
 
 const attributeTabletList = [
   {
-    name: "tabletModel",
+    name: "model",
     detail: {
       name: { vi: "Model máy tính bảng" },
       type: "text",

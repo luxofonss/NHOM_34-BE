@@ -8,6 +8,7 @@ const { decreaseVariation } = require("../models/repositories/variation.repo");
 const { convertToObjectIdMongodb } = require("../utils");
 const { ORDER_STATUS } = require("../constant");
 const { filterOrders } = require("../models/repositories/order.repo");
+const { updateStockProduct } = require("../models/repositories/product.repo");
 
 class OrderService {
   static async addOrderOneShop({ shopId, address, userId, products }) {}
@@ -55,6 +56,11 @@ class OrderService {
           await decreaseVariation({
             variationId: product.variation._id,
             quantity: product.quantity,
+          });
+
+          await updateStockProduct({
+            id: product.product._id,
+            quantity: parseInt(product.quantity),
           });
 
           //update cart

@@ -311,6 +311,20 @@ const addVariationToProduct = async ({ id, variation }) => {
     .exec();
 };
 
+const updateStockProduct = async ({ id, quantity }) => {
+  console.log("quantity: ", quantity);
+  return await product
+    .findOneAndUpdate(
+      {
+        _id: convertToObjectIdMongodb(id),
+      },
+      {
+        $inc: { quantity: -quantity, sold: quantity },
+      }
+    )
+    .exec();
+};
+
 module.exports = {
   findOneProduct,
   findAllProducts,
@@ -325,4 +339,5 @@ module.exports = {
   addVariationToProduct,
   findAllProductsForShop,
   findAllProductsForUser,
+  updateStockProduct,
 };
