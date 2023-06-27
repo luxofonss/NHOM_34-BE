@@ -42,6 +42,7 @@ app.use(
 const whitelist = [
   "http://localhost:3003",
   "http://127.0.0.1:3003",
+  "http://127.0.0.1:3000",
   "http://127.0.0.1:5500",
 ]; //white list consumers
 const corsOptions = {
