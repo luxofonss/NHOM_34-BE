@@ -1,5 +1,11 @@
 "use strict";
 
+const convertObject = (value, name) => {
+  const obj = {};
+  obj[name] = value;
+  return obj;
+};
+
 function getUpdateField(obj, parentKey = "") {
   console.log("obj:: ", obj);
   console.log(Array.isArray(obj["address"]));
@@ -15,6 +21,8 @@ function getUpdateField(obj, parentKey = "") {
     } else if (typeof obj[key] === "object") {
       // Call the function recursively to convert the nested object
       // Pass the parent key as an argument to append it to the nested keys
+      console.log("obj[key]:: ", obj[key]);
+      console.log(`${parentKey ? `${parentKey}.` : ""}${key}`);
       Object.assign(
         result,
         convertObject(obj[key], `${parentKey ? `${parentKey}.` : ""}${key}`)

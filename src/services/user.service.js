@@ -94,7 +94,9 @@ class UserService {
   static getShopById = async (shopId) => {
     const foundShop = await userModel
       .findById(shopId)
-      .select("name email verify avatar address shopInfo isShop")
+      .select(
+        "name email verify avatar address shopInfo isShop avatar createdAt"
+      )
       .exec();
 
     if (!foundShop) throw new ForbiddenError("Can not find shop.");
