@@ -78,6 +78,9 @@ const orderSchema = new Schema(
   }
 );
 
+orderSchema.index({ shopId: 1 });
+orderSchema.index({ shopId: 1, userId: 1 });
+
 //Export the model
 module.exports = model(DOCUMENT_NAME, orderSchema);
 //KSLeZ4~Z^&KN|K(G25wC.82F_x!3B@,c

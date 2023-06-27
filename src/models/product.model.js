@@ -91,13 +91,13 @@ const productSchema = new Schema(
     },
     isDraft: {
       type: Boolean,
-      default: true,
+      default: false,
       index: true,
       select: false,
     },
     isPublished: {
       type: Boolean,
-      default: false,
+      default: true,
       index: true,
     },
   },
