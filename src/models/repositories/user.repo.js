@@ -13,6 +13,13 @@ const getUserById = async ({ userId }) => {
   return foundUser;
 };
 
+const checkExistUser = async (userId) => {
+  const foundUser = await userModel.findById(userId).exec();
+  if (!foundUser) throw new AuthFailureError("Không tìm thấy người dùng.");
+  return 1;
+};
+
 module.exports = {
   getUserById,
+  checkExistUser,
 };

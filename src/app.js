@@ -2,17 +2,29 @@ const express = require("express");
 const morgan = require("morgan");
 const compression = require("compression");
 const helmet = require("helmet");
-const { checkOverload } = require("./helpers/check_connect");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const cookieSession = require("cookie-session");
 const app = express();
-const multer = require("multer");
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const {
+  addUserToOnlineList,
+  removeUserInOnlineList,
+  getOnlineUsers,
+  checkIfUserIsOnline,
+} = require("./services/redis.service");
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3003",
+    method: ["GET", "POST"],
+  },
+});
 
 require("dotenv").config();
-
-const upload = multer({ storage: multer.memoryStorage() });
 
 // init middleware
 app.use(morgan("dev"));
@@ -87,6 +99,42 @@ require("./database/init.mongodb");
 require("./auth/passport");
 require("./auth/passport.GoogleSSO");
 
+io.on("connection", (socket) => {
+  console.log("connected to socket.io");
+
+  socket.on("newConnection", async (userId) => {
+    console.log("new connection added");
+    await addUserToOnlineList({ userId, socketId: socket.id });
+  });
+
+  socket.on("chat msg", async (message) => {
+    console.log("chat", message);
+    io.emit("sendMsg", message);
+    const socketId = await checkIfUserIsOnline("649a5397b57f257e24fca462");
+    console.log("socketId:: ", socketId);
+  });
+
+  // socketListener(socket, io);
+
+  socket.on("sendMessage", async (data) => {
+    console.log("a message is sent");
+  });
+
+  socket.on("disconnect", async () => {
+    console.log("user disconnected", socket.id);
+    await removeUserInOnlineList(socket.id);
+  });
+
+  socket.on("error", function (err) {
+    console.log(err);
+  });
+});
+
+app.use((req, res, next) => {
+  res.io = io;
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -98,6 +146,12 @@ app.use(passport.session());
 //   res.send("Hello");
 // });
 app.use("/", require("./routes"));
+app.get("/test-socket", (req, res) => {
+  const io = res.io;
+  io.emit("connection");
+  io.emit("chat msg", "test");
+  res.send("success");
+});
 
 // handle error
 app.use((req, res, next) => {
@@ -115,4 +169,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = app;
+module.exports = { app: server, io };

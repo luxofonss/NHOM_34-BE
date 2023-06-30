@@ -10,6 +10,7 @@ class OrderController {
       metadata: await OrderService.addNewUserOrder({
         userId: req.user.userId,
         address: req.body.address,
+        io: res.io,
       }),
     }).send(res);
   };
@@ -39,6 +40,7 @@ class OrderController {
       metadata: await OrderService.confirmOrders({
         shopId: req.user.userId,
         orderIds: req.body.orderIds,
+        io: res.io
       }),
     }).send(res);
   };
@@ -49,6 +51,7 @@ class OrderController {
       metadata: await OrderService.shippingOrders({
         shopId: req.user.userId,
         orderIds: req.body.orderIds,
+        io: res.io
       }),
     }).send(res);
   };
@@ -60,6 +63,7 @@ class OrderController {
         shopId: req.user.userId,
         orderId: req.body.orderId,
         reason: req.body.reason,
+        io: res.io
       }),
     }).send(res);
   };
@@ -71,6 +75,7 @@ class OrderController {
         userId: req.user.userId,
         orderId: req.body.orderId,
         reason: req.body.reason,
+        io: res.io
       }),
     }).send(res);
   };

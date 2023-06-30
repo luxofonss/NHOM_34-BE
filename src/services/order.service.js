@@ -6,19 +6,28 @@ const orderModel = require("../models/order.model");
 const { v4: uuidv4 } = require("uuid");
 const { decreaseVariation } = require("../models/repositories/variation.repo");
 const { convertToObjectIdMongodb } = require("../utils");
-const { ORDER_STATUS } = require("../constant");
-const { filterOrders } = require("../models/repositories/order.repo");
+const {
+  ORDER_STATUS,
+  ORDER_NOTIFICATION,
+  NOTIFICATION_TYPE,
+} = require("../constant");
+const {
+  filterOrders,
+  sendNotification,
+} = require("../models/repositories/order.repo");
 const { updateStockProduct } = require("../models/repositories/product.repo");
+const { checkIfUserIsOnline } = require("./redis.service");
+const NotificationService = require("./notification.service");
 
 class OrderService {
   static async addOrderOneShop({ shopId, address, userId, products }) {}
 
-  static async addNewUserOrder({ userId, address }) {
+  static async addNewUserOrder({ userId, address, io }) {
     console.log("address:: ", address);
     const userCart = await CartService.getCart({ userId, limit: 10000 });
     if (!userCart) throw new NotFoundError("Không tìm thấy người dùng!");
     let orderList = [];
-    userCart[0].products.forEach((shop) => {
+    userCart.forEach((shop) => {
       let productList = [];
       let productDetailList = [];
       let totalPrice = 0;
@@ -48,7 +57,7 @@ class OrderService {
         });
     });
 
-    return await Promise.all([
+    const result = await Promise.all([
       orderList.map(async (shop) => {
         shop.productDetailList.map(async (product) => {
           console.log("product:: ", product);
@@ -71,7 +80,7 @@ class OrderService {
         });
 
         //create order list
-        await orderModel.create({
+        const newOrder = await orderModel.create({
           userId: userId,
           shopId: shop.shopId,
           checkout: shop.checkout,
@@ -81,8 +90,29 @@ class OrderService {
           trackingNumber: shop.shop.shop.name + uuidv4().slice(0, 8),
           status: "PENDING",
         });
+
+        console.log(shop.shopId.toString());
+        await NotificationService.createNotification({
+          userId,
+          senderId: shop.shopId,
+          orderId: newOrder._id,
+          type: NOTIFICATION_TYPE.ORDER_SHOP,
+          message: `Bạn có đơn hàng mới trị giá ${shop.checkout.totalPrice} giao tới ${address}`,
+        });
+        const socketId = await checkIfUserIsOnline(shop.shopId.toString());
+        console.log("socketId:: ", socketId);
+        if (socketId) {
+          io.to(socketId).emit(
+            ORDER_NOTIFICATION,
+            `Bạn có đơn hàng mới trị giá ${shop.checkout.totalPrice} giao tới ${address} `
+          );
+        } else {
+          console.log("User with ID: " + userId + " is not online.");
+        }
       }),
     ]);
+
+    return result;
   }
 
   static async getShopOrders({ userId, page = 1, sort = "ctime", limit = 20 }) {
@@ -220,8 +250,8 @@ class OrderService {
     return foundOrder;
   }
 
-  static async confirmOrders({ shopId, orderIds }) {
-    return await orderModel
+  static async confirmOrders({ shopId, orderIds, io }) {
+    const result = await orderModel
       .updateMany(
         {
           shopId: convertToObjectIdMongodb(shopId),
@@ -234,9 +264,11 @@ class OrderService {
         }
       )
       .exec();
+    await sendNotification(orderIds, `Bạn có đơn hàng mới được xác nhận`, io);
+    return result;
   }
 
-  static async shippingOrders({ shopId, orderIds }) {
+  static async shippingOrders({ shopId, orderIds, io }) {
     return await orderModel
       .updateMany(
         {
@@ -252,7 +284,7 @@ class OrderService {
       .exec();
   }
 
-  static async rejectOrder({ shopId, orderId, reason }) {
+  static async rejectOrder({ shopId, orderId, reason, io }) {
     const foundOrder = await orderModel
       .findOne({
         shopId: convertToObjectIdMongodb(shopId),
@@ -290,7 +322,7 @@ class OrderService {
     }
   }
 
-  static async cancelOrder({ userId, orderId, reason }) {
+  static async cancelOrder({ userId, orderId, reason, io }) {
     const foundOrder = await orderModel
       .findOne({
         _id: convertToObjectIdMongodb(orderId),
