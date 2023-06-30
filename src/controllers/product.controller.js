@@ -56,6 +56,10 @@ class ProductController {
 
   // GET
   static findOneProduct = async (req, res) => {
+    const io = res.io;
+    console.log("io::", io);
+    io.emit("sendMsg", "view one product message from socket");
+
     new SuccessResponse({
       message: "Find product successfully!",
       metadata: await ProductFactory.findOneProduct({

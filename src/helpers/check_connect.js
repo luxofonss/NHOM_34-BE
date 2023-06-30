@@ -3,7 +3,7 @@
 const mongoose = require("mongoose");
 const os = require("os");
 const process = require("process");
-const _SECONDS = 5000;
+const _SECONDS = 200000;
 
 //count connect
 const countConnect = () => {
@@ -25,6 +25,6 @@ const checkOverload = () => {
     if (numConnections > maxConnections) {
       console.log("Maximum number of connections");
     }
-  }, _SECONDS); //Monitor every 5 seconds
+  }, _SECONDS); //Monitor every 20 seconds
 };
 module.exports = { countConnect, checkOverload };

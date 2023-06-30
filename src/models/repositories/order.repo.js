@@ -2,7 +2,10 @@
 
 const { convertToObjectIdMongodb } = require("../../utils");
 const orderModel = require("../order.model");
-
+const { NotFoundError } = require("../../core/error.response");
+const { checkIfUserIsOnline } = require("../../services/redis.service");
+const { ORDER_NOTIFICATION, NOTIFICATION_TYPE } = require("../../constant");
+const NotificationService = require("../../services/notification.service");
 const filterOrders = async ({
   filter,
   populate = { user: {}, product: {} },
@@ -153,6 +156,43 @@ const filterOrders = async ({
   };
 };
 
+const getCustomerIdInOrder = async (orderId) => {
+  const foundOrder = await orderModel.findById(orderId).exec();
+  if (!foundOrder) throw new NotFoundError();
+
+  return { userId: foundOrder.userId, shopId: foundOrder.shopId };
+};
+
+const sendNotification = async (orderIds, message, io) => {
+  const promises = orderIds.map(async (orderId) => {
+    const { userId, shopId } = await getCustomerIdInOrder(orderId);
+    const newNotification = await NotificationService.createNotification({
+      userId,
+      senderId: shopId,
+      orderId,
+      type: NOTIFICATION_TYPE.ORDER_CUSTOMER,
+      message,
+    });
+    if (newNotification) {
+      console.log("newNotification:: ", newNotification);
+      const socketId = await checkIfUserIsOnline(userId.toString());
+      if (socketId) {
+        io.to(socketId).emit(ORDER_NOTIFICATION, message);
+      } else {
+        console.log("User with ID: " + userId + " is not online.");
+      }
+    }
+  });
+
+  Promise.all(promises)
+    .then(() => {
+      console.log("completed");
+    })
+    .catch((error) => console.log("error:: ", error));
+};
+
 module.exports = {
   filterOrders,
+  getCustomerIdInOrder,
+  sendNotification,
 };

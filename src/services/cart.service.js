@@ -376,9 +376,11 @@ class CartService {
           $group: {
             _id: "$_id",
             checked: { $first: "$checked" },
-            products: {
-              $push: "$$ROOT",
-            },
+            shop: { $first: "$shop" },
+            products: { $first: "$products" },
+            // products: {
+            //   $push: "$$ROOT",
+            // },
             totalPrice: { $first: "$totalPrice" },
           },
         },
