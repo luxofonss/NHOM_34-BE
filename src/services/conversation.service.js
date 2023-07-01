@@ -1,6 +1,7 @@
 "use strict";
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const conversationModel = require("../models/conversation.model");
+const { checkExistUser } = require("../models/repositories/user.repo");
 const { convertToObjectIdMongodb } = require("../utils");
 
 // 1. generate message code
@@ -16,18 +17,20 @@ class ConversationService {
 
   static async updateLastMessage({ conversationId, message, sender, time }) {
     console.log("time:: ", time);
-    return await conversationModel.findOneAndUpdate(
-      {
-        _id: convertToObjectIdMongodb(conversationId),
-      },
-      {
-        lastMessage: {
-          message: message,
-          from: convertToObjectIdMongodb(sender),
-          time: time,
+    return await conversationModel
+      .findOneAndUpdate(
+        {
+          _id: convertToObjectIdMongodb(conversationId),
         },
-      }
-    );
+        {
+          lastMessage: {
+            message: message,
+            from: convertToObjectIdMongodb(sender),
+            time: time,
+          },
+        }
+      )
+      .exec();
   }
 
   static async getUserConversations({ userId }) {
@@ -38,9 +41,9 @@ class ConversationService {
       .populate("members", "name _id avatar")
       .exec();
 
-    allConversation.map((conversation, index) => {
+    allConversation.forEach((conversation, index) => {
       if (!conversation.thumb) {
-        conversation.members.map((member) => {
+        conversation.members.forEach((member) => {
           if (member._id.toString() !== userId) {
             console.log("found");
             allConversation[index].user = {
@@ -66,6 +69,43 @@ class ConversationService {
       throw new BadRequestError("User is not in this conversation");
     } else {
       return 1;
+    }
+  }
+
+  static async getNewConversation({ userId, receiverId }) {
+    await checkExistUser(receiverId);
+    const foundConversation = await conversationModel
+      .findOne({
+        members: { $all: [userId, receiverId] },
+      })
+      .exec();
+
+    if (foundConversation) {
+      let allConversations = await conversationModel
+        .find({
+          members: { $in: userId, $nin: [receiverId] },
+        })
+        .populate("members", "name _id avatar")
+        .exec();
+
+      allConversations.forEach((conversation, index) => {
+        if (!conversation.thumb) {
+          conversation.members.forEach((member) => {
+            if (member._id.toString() !== userId) {
+              console.log("found");
+              allConversations[index].user = {
+                _id: member._id,
+                name: member.name,
+                avatar: member.avatar,
+              };
+            }
+          });
+        }
+      });
+      const result = [foundConversation, ...allConversations];
+      return result;
+    } else {
+      return [];
     }
   }
 }

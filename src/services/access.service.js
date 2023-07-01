@@ -115,7 +115,8 @@ class AccessService {
       );
     }
     // compare password
-    const match = bcrypt.compare(password, foundUser.password);
+    const match = await bcrypt.compare(password, foundUser.password);
+    console.log("pwd match:: ", match);
     if (!match) throw new AuthFailureError("Error: Unauthorized!");
 
     // create public key, private key

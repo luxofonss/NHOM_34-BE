@@ -163,7 +163,12 @@ const getCustomerIdInOrder = async (orderId) => {
   return { userId: foundOrder.userId, shopId: foundOrder.shopId };
 };
 
-const sendNotification = async (orderIds, message, io) => {
+const sendNotification = async (
+  orderIds,
+  message,
+  io,
+  receiver = "customer"
+) => {
   const promises = orderIds.map(async (orderId) => {
     const { userId, shopId } = await getCustomerIdInOrder(orderId);
     const newNotification = await NotificationService.createNotification({
@@ -174,8 +179,9 @@ const sendNotification = async (orderIds, message, io) => {
       message,
     });
     if (newNotification) {
+      const receiverId = receiver === "customer" ? userId : shopId;
       console.log("newNotification:: ", newNotification);
-      const socketId = await checkIfUserIsOnline(userId.toString());
+      const socketId = await checkIfUserIsOnline(receiverId.toString());
       if (socketId) {
         io.to(socketId).emit(ORDER_NOTIFICATION, message);
       } else {

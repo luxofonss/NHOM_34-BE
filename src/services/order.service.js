@@ -269,7 +269,7 @@ class OrderService {
   }
 
   static async shippingOrders({ shopId, orderIds, io }) {
-    return await orderModel
+    const result = await orderModel
       .updateMany(
         {
           shopId: convertToObjectIdMongodb(shopId),
@@ -282,6 +282,8 @@ class OrderService {
         }
       )
       .exec();
+    await sendNotification(orderIds, `Bạn có đơn hàng mới đang giao`, io);
+    return result;
   }
 
   static async rejectOrder({ shopId, orderId, reason, io }) {
@@ -305,7 +307,7 @@ class OrderService {
         })
       );
 
-      return await orderModel
+      const result = await orderModel
         .findOneAndUpdate(
           {
             shopId: convertToObjectIdMongodb(shopId),
@@ -317,6 +319,8 @@ class OrderService {
           }
         )
         .exec();
+      await sendNotification(orderId, `Bạn có đơn hàng mới đang giao`, io);
+      return result;
     } else {
       throw new BadRequestError("Không thể hủy đơn hàng");
     }
@@ -342,7 +346,7 @@ class OrderService {
         });
       })
     );
-    return await orderModel
+    const result = await orderModel
       .findOneAndUpdate(
         {
           _id: convertToObjectIdMongodb(orderId),
@@ -355,6 +359,13 @@ class OrderService {
         }
       )
       .exec();
+    await sendNotification(
+      orderId,
+      `Bạn có đơn hàng mới đang giao`,
+      io,
+      "shop"
+    );
+    return result;
   }
 
   static async getAndFilterOrder({ shopId, body }) {

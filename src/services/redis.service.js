@@ -71,7 +71,33 @@ const addUserToOnlineList = async (user) => {
   }
 };
 
-const removeUserInOnlineList = async (socketId) => {
+const removeUserById = async (userId) => {
+  // Find the user with the matching socketId and remove from Redis
+  console.log("removing");
+  redisClient
+    .lRange(onlineUsersKey, 0, -1)
+    .then((elements) => {
+      console.log("elements:: ", elements);
+      elements.forEach((element) => {
+        // Parse the JSON string into an object
+        const parsedElement = JSON.parse(element);
+
+        // Check if "b" is equal to userId
+        if (parsedElement.userId === userId) {
+          // Remove the item from the list
+          redisClient
+            .lRem(onlineUsersKey, 0, element)
+            .then((res) => {
+              console.log("success");
+            })
+            .catch((err) => console.log("err:: ", err));
+        }
+      });
+    })
+    .catch((err) => console.log("err:: ", err));
+};
+
+const removeUserBySocketId = async (socketId) => {
   // Find the user with the matching socketId and remove from Redis
   console.log("removing");
   redisClient
@@ -141,6 +167,7 @@ module.exports = {
   releaseLock,
   addUserToOnlineList,
   getOnlineUsers,
-  removeUserInOnlineList,
+  removeUserById,
+  removeUserBySocketId,
   checkIfUserIsOnline,
 };

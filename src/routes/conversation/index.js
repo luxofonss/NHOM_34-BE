@@ -7,6 +7,7 @@ const { authentication } = require("../../auth/authUtils");
 
 router.use(asyncHandler(authentication));
 
+router.post("/new", asyncHandler(conversationController.getNewConversation));
 router.get("/", asyncHandler(conversationController.getUserConversations));
 
 module.exports = router;

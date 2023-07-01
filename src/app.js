@@ -12,9 +12,11 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const {
   addUserToOnlineList,
-  removeUserInOnlineList,
+  removeUserById,
   getOnlineUsers,
   checkIfUserIsOnline,
+  removeUserBySocketId,
+
 } = require("./services/redis.service");
 
 const io = new Server(server, {
@@ -107,6 +109,10 @@ io.on("connection", (socket) => {
     await addUserToOnlineList({ userId, socketId: socket.id });
   });
 
+  socket.on("disconnectSocket", async (userId) => {
+    console.log("delete connection");
+    await removeUserById(userId);
+  
   socket.on("chat msg", async (message) => {
     console.log("chat", message);
     io.emit("sendMsg", message);
@@ -120,9 +126,8 @@ io.on("connection", (socket) => {
     console.log("a message is sent");
   });
 
-  socket.on("disconnect", async () => {
-    console.log("user disconnected", socket.id);
-    await removeUserInOnlineList(socket.id);
+    console.log("socket closed");
+    await removeUserBySocketId(socket.id);
   });
 
   socket.on("error", function (err) {

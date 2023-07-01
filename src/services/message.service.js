@@ -26,12 +26,24 @@ class MessageService {
       });
 
       await ConversationService.updateLastMessage({
-        conversationId,
+        conversationId: newConversation._id,
         message,
         sender,
         time: response.createdOn,
       });
 
+      const socketId = await checkIfUserIsOnline(receiver);
+      console.log("sending message to user", socketId);
+
+      if (socketId) {
+        console.log("sending message to user");
+        io.to(socketId).emit("receiveMessage", {
+          conversationId: newConversation._id,
+          sender,
+          receiver,
+          message,
+        });
+      }
       return response;
     } else {
       const response = await messageModel.create({
