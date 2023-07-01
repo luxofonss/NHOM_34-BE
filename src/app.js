@@ -16,6 +16,7 @@ const {
   getOnlineUsers,
   checkIfUserIsOnline,
   removeUserBySocketId,
+
 } = require("./services/redis.service");
 
 const io = new Server(server, {
@@ -111,8 +112,7 @@ io.on("connection", (socket) => {
   socket.on("disconnectSocket", async (userId) => {
     console.log("delete connection");
     await removeUserById(userId);
-  });
-
+  
   socket.on("chat msg", async (message) => {
     console.log("chat", message);
     io.emit("sendMsg", message);
@@ -126,7 +126,6 @@ io.on("connection", (socket) => {
     console.log("a message is sent");
   });
 
-  socket.on("disconnect", async () => {
     console.log("socket closed");
     await removeUserBySocketId(socket.id);
   });

@@ -13,6 +13,7 @@ class ConversationController {
     }).send(res);
   };
 
+
   static getNewConversation = async (req, res, next) => {
     return new SuccessResponse({
       message: "Finding conversations successfully!",
