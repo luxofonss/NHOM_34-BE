@@ -44,7 +44,6 @@ class MessageService {
           message,
         });
       }
-
       return response;
     } else {
       const response = await messageModel.create({
