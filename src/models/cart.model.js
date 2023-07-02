@@ -26,6 +26,7 @@ const cartSchema = new Schema(
             checked: { type: Number, default: 0 },
           },
         ],
+        modifiedAt: Date,
       },
     ],
     productCount: {

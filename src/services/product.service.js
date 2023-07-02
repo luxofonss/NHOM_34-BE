@@ -368,6 +368,7 @@ class ProductFactory {
     maxPrice,
     typeId,
     name,
+    shop,
     limit = 10,
     page = 1,
     filter = {},
@@ -379,6 +380,7 @@ class ProductFactory {
       maxPrice,
       limit,
       name,
+      shop,
       page,
       filter,
       sort,
@@ -515,7 +517,16 @@ class ProductFactory {
       sort,
       filter,
       page,
-      select: ["name", "thumb", "description", "price", "thumb", "shop"],
+      select: [
+        "name",
+        "thumb",
+        "description",
+        "price",
+        "thumb",
+        "shop",
+        "minPrice",
+        "maxPrice",
+      ],
     });
   }
 }

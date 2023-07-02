@@ -43,7 +43,7 @@ class AccessController {
   static handleLogout = async (req, res, next) => {
     new SuccessResponse({
       message: "Logout successfully",
-      metadata: await AccessService.logout(res, {
+      metadata: await AccessService.logout(res, req,{
         keyStore: req.keyStore,
         refreshToken: req.refreshToken,
       }),

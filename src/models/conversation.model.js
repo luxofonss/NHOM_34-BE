@@ -24,4 +24,7 @@ const conversationSchema = new Schema(
   }
 );
 
+//create index for search
+conversationSchema.index({ modifiedOn: 1 });
+
 module.exports = model(DOCUMENT_NAME, conversationSchema);

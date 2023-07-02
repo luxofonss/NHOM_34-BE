@@ -117,7 +117,6 @@ class UserService {
   };
 
   static updateUserAvatar = async ({ userId, image }) => {
-    await getUserById({ userId });
     const url = await UploadService.uploadSingleImage(image);
     return await userModel
       .findOneAndUpdate(

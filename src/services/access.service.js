@@ -259,7 +259,7 @@ class AccessService {
     };
   };
 
-  static logout = async (res, { keyStore, refreshToken }) => {
+  static logout = async (res, req, { keyStore, refreshToken }) => {
     await updateKeyToken({
       userId: keyStore.userId,
       refreshToken: keyStore.refreshToken.filter((rt) => rt !== refreshToken),
@@ -270,6 +270,12 @@ class AccessService {
       httpOnly: true,
       sameSite: "None",
       secure: true,
+    });
+
+    req.logout((err) => {
+      if (err) {
+        console.log("error: ", err);
+      }
     });
 
     return {};
@@ -297,7 +303,8 @@ class AccessService {
   };
 
   static oauthSuccess = async (req, res) => {
-    console.log("req:: ", req);
+    // console.log("req:: ", req);
+    console.log("req.user:: ", req.user);
     const cookies = req.cookies;
     if (req.user) {
       const userInfo = await UserService.findByUserId({ userId: req.user._id });

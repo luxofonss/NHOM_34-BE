@@ -11,6 +11,23 @@ const { USER_ROLE } = require("../constant");
 
 require("dotenv").config();
 
+console.log("passport running");
+
+passport.serializeUser((user, callback) => {
+  console.log("serializeUser ", user);
+  callback(null, user._id);
+});
+
+passport.deserializeUser(async (id, callback) => {
+  try {
+    const user = await UserService.findByUserId({ userId: id });
+    console.log("deserialized user: ", user);
+    callback(null, user);
+  } catch (error) {
+    callback(error, null);
+  }
+});
+
 passport.use(
   new GoogleStrategy(
     {
@@ -86,18 +103,3 @@ passport.use(
     }
   )
 );
-
-passport.serializeUser((user, callback) => {
-  console.log("serializeUser ", user);
-  callback(null, user._id);
-});
-
-passport.deserializeUser(async (id, callback) => {
-  try {
-    const user = await UserService.findByUserId({ userId: id });
-    console.log("deserialized user: ", user);
-    callback(null, user);
-  } catch (error) {
-    callback(error, null);
-  }
-});

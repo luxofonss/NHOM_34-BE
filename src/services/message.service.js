@@ -88,9 +88,10 @@ class MessageService {
       .find({
         conversationId: convertToObjectIdMongodb(conversationId),
       })
+      .sort({ createdOn: -1 })
       .skip(skip)
       .limit(messagePageSize)
-      .sort({ createdOn: -1 })
+      .sort({ createdOn: 1 })
       .exec();
   }
 }
