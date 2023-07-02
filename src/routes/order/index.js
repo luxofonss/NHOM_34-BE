@@ -15,5 +15,6 @@ router.put("/cancel", asyncHandler(orderController.cancelOrder));
 router.put("/shipping", asyncHandler(orderController.shippingOrders));
 router.post("/add", asyncHandler(orderController.addNewUserOrder));
 router.get("/:id", asyncHandler(orderController.getOrderByIdForShop));
+router.get("/user/:id", asyncHandler(orderController.getOrderByIdForUser));
 
 module.exports = router;

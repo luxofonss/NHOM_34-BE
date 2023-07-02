@@ -14,15 +14,15 @@ const opts = {
 // opts.issuer = "accounts.examplesoft.com";
 // opts.audience = "yoursite.net";
 
-passport.use(
-  new JwtStrategy(opts, async (jwt_payload, done) => {
-    try {
-      console.log("jwt strategy running");
-      console.log("jwt payload: ", jwt_payload);
-      const user = await UserService.findByEmail(jwt_payload.email);
-      return done(null, user);
-    } catch (error) {
-      return done(error, false);
-    }
-  })
-);
+// passport.use(
+//   new JwtStrategy(opts, async (jwt_payload, done) => {
+//     try {
+//       console.log("jwt strategy running");
+//       console.log("jwt payload: ", jwt_payload);
+//       const user = await UserService.findByEmail(jwt_payload.email);
+//       return done(null, user);
+//     } catch (error) {
+//       return done(error, false);
+//     }
+//   })
+// );

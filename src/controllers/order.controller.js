@@ -34,13 +34,23 @@ class OrderController {
     }).send(res);
   };
 
+  static getOrderByIdForUser = async (req, res, next) => {
+    return new SuccessResponse({
+      message: "Get order successfully!",
+      metadata: await OrderService.getOrderByIdForUser({
+        userId: req.user.userId,
+        orderId: req.params.id,
+      }),
+    }).send(res);
+  };
+
   static confirmOrders = async (req, res, next) => {
     return new SuccessResponse({
       message: "Confirm order successfully!",
       metadata: await OrderService.confirmOrders({
         shopId: req.user.userId,
         orderIds: req.body.orderIds,
-        io: res.io
+        io: res.io,
       }),
     }).send(res);
   };
@@ -51,7 +61,7 @@ class OrderController {
       metadata: await OrderService.shippingOrders({
         shopId: req.user.userId,
         orderIds: req.body.orderIds,
-        io: res.io
+        io: res.io,
       }),
     }).send(res);
   };
@@ -63,7 +73,7 @@ class OrderController {
         shopId: req.user.userId,
         orderId: req.body.orderId,
         reason: req.body.reason,
-        io: res.io
+        io: res.io,
       }),
     }).send(res);
   };
@@ -75,7 +85,7 @@ class OrderController {
         userId: req.user.userId,
         orderId: req.body.orderId,
         reason: req.body.reason,
-        io: res.io
+        io: res.io,
       }),
     }).send(res);
   };

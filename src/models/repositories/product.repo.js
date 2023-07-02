@@ -48,6 +48,7 @@ const findAllProductsForUser = async ({
   maxPrice,
   limit,
   name,
+  shop,
   page,
   filter,
   sort,
@@ -83,6 +84,10 @@ const findAllProductsForUser = async ({
   if (!isEmpty(name)) {
     const regexSearch = new RegExp(name);
     productFilter.name = { $regex: regexSearch, $options: "i" };
+  }
+
+  if (shop) {
+    productFilter = { ...productFilter, shop: convertToObjectIdMongodb(shop) };
   }
 
   console.log("productFilter:: ", productFilter);

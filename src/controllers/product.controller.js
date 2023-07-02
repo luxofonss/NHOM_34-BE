@@ -97,6 +97,7 @@ class ProductController {
       metadata: await ProductFactory.findAllProductsForUser({
         minPrice: req.query.minPrice,
         maxPrice: req.query.maxPrice,
+        shop: req.query.shop,
         limit: req.query.pageSize,
         name: req.query.name,
         page: req.query.page,

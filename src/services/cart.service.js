@@ -2,6 +2,11 @@
 
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const { cart } = require("../models/cart.model");
+const {
+  checkIfAllInShopChecked,
+  checkIfAllChecked,
+  handleUncheckShop,
+} = require("../models/repositories/cart.repo");
 
 const { getProductById } = require("../models/repositories/product.repo");
 const { convertToObjectIdMongodb } = require("../utils");
@@ -253,12 +258,13 @@ class CartService {
   static async getCart({ userId, page = 1, sort = "ctime", limit = 20 }) {
     const skip = limit * (page - 1);
     const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
-    return await cart
+    const response = await cart
       .aggregate([
         { $match: { userId: convertToObjectIdMongodb(userId) } },
         {
           $unwind: "$products",
         },
+        { $sort: { "products._id": 1 } },
         {
           $lookup: {
             from: "user",
@@ -278,7 +284,6 @@ class CartService {
             ],
           },
         },
-
         {
           $project: {
             shopDetails: {
@@ -374,21 +379,35 @@ class CartService {
         },
         {
           $group: {
-            _id: "$_id",
-            checked: { $first: "$checked" },
-            shop: { $first: "$shop" },
-            products: { $first: "$products" },
-            // products: {
-            //   $push: "$$ROOT",
-            // },
-            totalPrice: { $first: "$totalPrice" },
+            _id: null,
+            totalPrice: { $sum: "$totalPrice" },
+            data: { $push: "$$ROOT" },
+            countChecked: {
+              $sum: {
+                $cond: [{ $eq: ["$checked", 1] }, 1, 0], // Count checked values (true)
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalPrice: 1,
+            data: 1,
+            allChecked: { $eq: ["$countChecked", { $size: "$data" }] },
           },
         },
         { $sort: sortBy },
-        { $skip: skip },
-        { $limit: limit },
+        // { $skip: skip },
+        // { $limit: limit },
       ])
       .exec();
+
+    if (response[0]) {
+      return response[0];
+    } else {
+      throw new BadRequestError("Lỗi hệ thống, vui lòng thử lại sau");
+    }
   }
 
   static async setAllCheck({ checked, userId }) {
@@ -403,7 +422,7 @@ class CartService {
   }
 
   static async setShopCheck({ checked, userId, shopId }) {
-    return await cart
+    const result = await cart
       .findOneAndUpdate(
         {
           userId: convertToObjectIdMongodb(userId),
@@ -415,6 +434,8 @@ class CartService {
         }
       )
       .exec();
+    await checkIfAllChecked({ userId });
+    return result;
   }
 
   static async setProductCheck({
@@ -425,15 +446,16 @@ class CartService {
     quantity,
     checked,
   }) {
+    console.log("checked:: ", checked);
     let able = await ProductFactory.checkProductStock({
       shopId: shopId,
       productId: productId,
       variationId: variationId,
       quantity: quantity,
     });
-    if (able)
-      return await cart
-        .findOneAndUpdate(
+    if (able) {
+      const result = await cart
+        .updateOne(
           {
             userId: convertToObjectIdMongodb(userId),
             "products.products.variationId":
@@ -455,7 +477,15 @@ class CartService {
           }
         )
         .exec();
-    else {
+
+      if (checked) {
+        await checkIfAllInShopChecked({ userId, shopId });
+        await checkIfAllChecked({ userId });
+      } else {
+        await handleUncheckShop({ userId, shopId });
+      }
+      return result;
+    } else {
       if (!checked)
         await cart
           .findOneAndUpdate(

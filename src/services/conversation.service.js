@@ -39,6 +39,7 @@ class ConversationService {
         members: { $in: userId },
       })
       .populate("members", "name _id avatar")
+      .sort({ modifiedOn: -1 })
       .exec();
 
     allConversation.forEach((conversation, index) => {

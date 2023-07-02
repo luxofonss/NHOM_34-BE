@@ -18,6 +18,7 @@ const {
 const { updateStockProduct } = require("../models/repositories/product.repo");
 const { checkIfUserIsOnline } = require("./redis.service");
 const NotificationService = require("./notification.service");
+const accounting = require("accounting");
 
 class OrderService {
   static async addOrderOneShop({ shopId, address, userId, products }) {}
@@ -27,7 +28,7 @@ class OrderService {
     const userCart = await CartService.getCart({ userId, limit: 10000 });
     if (!userCart) throw new NotFoundError("Không tìm thấy người dùng!");
     let orderList = [];
-    userCart.forEach((shop) => {
+    userCart.data.forEach((shop) => {
       let productList = [];
       let productDetailList = [];
       let totalPrice = 0;
@@ -41,7 +42,7 @@ class OrderService {
               quantity: product.quantity,
             });
 
-            totalPrice += product.variation.price;
+            totalPrice += product.variation.price * product.quantity;
           } else
             throw new BadRequestError(
               `${product.product.name} đã hết hàng, vui lòng chọn lại`
@@ -97,14 +98,18 @@ class OrderService {
           senderId: shop.shopId,
           orderId: newOrder._id,
           type: NOTIFICATION_TYPE.ORDER_SHOP,
-          message: `Bạn có đơn hàng mới trị giá ${shop.checkout.totalPrice} giao tới ${address}`,
+          message: `Bạn có đơn hàng mới trị giá ${accounting.formatNumber(
+            shop.checkout.totalPrice
+          )} giao tới ${address}`,
         });
         const socketId = await checkIfUserIsOnline(shop.shopId.toString());
         console.log("socketId:: ", socketId);
         if (socketId) {
           io.to(socketId).emit(
             ORDER_NOTIFICATION,
-            `Bạn có đơn hàng mới trị giá ${shop.checkout.totalPrice} giao tới ${address} `
+            `Bạn có đơn hàng mới trị giá ${accounting.formatNumber(
+              shop.checkout.totalPrice
+            )} giao tới ${address} `
           );
         } else {
           console.log("User with ID: " + userId + " is not online.");
@@ -221,7 +226,10 @@ class OrderService {
 
   static async getOrderByIdForShop({ orderId, userId }) {
     const foundOrder = await orderModel
-      .findById(orderId)
+      .findOne({
+        _id: convertToObjectIdMongodb(orderId),
+        shopId: convertToObjectIdMongodb(userId),
+      })
       .populate({
         path: "userId",
         select: "name _id email address phoneNumber",
@@ -244,6 +252,40 @@ class OrderService {
     if (!foundOrder) throw new NotFoundError("Không tìm thấy đơn hàng");
     console.log("foundOrder:: ", foundOrder);
     if (foundOrder.shopId.toString() !== userId) {
+      throw new ForbiddenError("Bạn không có quyền xem đơn hàng này");
+    }
+
+    return foundOrder;
+  }
+
+  static async getOrderByIdForUser({ orderId, userId }) {
+    const foundOrder = await orderModel
+      .findOne({
+        _id: convertToObjectIdMongodb(orderId),
+        userId: convertToObjectIdMongodb(userId),
+      })
+      .populate({
+        path: "shopId",
+        select: "name _id email address phoneNumber shopInfo",
+      })
+      .populate({
+        path: "products",
+        populate: [
+          {
+            path: "productId",
+            select: "name thumb _id",
+          },
+          {
+            path: "variationId",
+            select:
+              "_id keyVariation keyVariationValue subVariation subVariationValue stock price thumb",
+          },
+        ],
+      })
+      .exec();
+    if (!foundOrder) throw new NotFoundError("Không tìm thấy đơn hàng");
+    console.log("foundOrder:: ", foundOrder);
+    if (foundOrder.userId.toString() !== userId) {
       throw new ForbiddenError("Bạn không có quyền xem đơn hàng này");
     }
 
@@ -319,7 +361,7 @@ class OrderService {
           }
         )
         .exec();
-      await sendNotification(orderId, `Bạn có đơn hàng mới đang giao`, io);
+      await sendNotification([orderId], `Bạn có đơn hàng mới đang giao`, io);
       return result;
     } else {
       throw new BadRequestError("Không thể hủy đơn hàng");
@@ -360,7 +402,7 @@ class OrderService {
       )
       .exec();
     await sendNotification(
-      orderId,
+      [orderId],
       `Bạn có đơn hàng mới đang giao`,
       io,
       "shop"
