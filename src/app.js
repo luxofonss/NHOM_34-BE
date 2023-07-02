@@ -16,12 +16,11 @@ const {
   getOnlineUsers,
   checkIfUserIsOnline,
   removeUserBySocketId,
-
 } = require("./services/redis.service");
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3003",
+    origin: ["http://localhost:3003", "https://sopy.vercel.app"],
     method: ["GET", "POST"],
   },
 });
@@ -58,6 +57,7 @@ const whitelist = [
   "http://127.0.0.1:3003",
   "http://127.0.0.1:3000",
   "http://127.0.0.1:5500",
+  "https://sopy.vercel.app",
 ]; //white list consumers
 const corsOptions = {
   origin: function (origin, callback) {
@@ -112,19 +112,19 @@ io.on("connection", (socket) => {
   socket.on("disconnectSocket", async (userId) => {
     console.log("delete connection");
     await removeUserById(userId);
-  
-  socket.on("chat msg", async (message) => {
-    console.log("chat", message);
-    io.emit("sendMsg", message);
-    const socketId = await checkIfUserIsOnline("649a5397b57f257e24fca462");
-    console.log("socketId:: ", socketId);
-  });
 
-  // socketListener(socket, io);
+    socket.on("chat msg", async (message) => {
+      console.log("chat", message);
+      io.emit("sendMsg", message);
+      const socketId = await checkIfUserIsOnline("649a5397b57f257e24fca462");
+      console.log("socketId:: ", socketId);
+    });
 
-  socket.on("sendMessage", async (data) => {
-    console.log("a message is sent");
-  });
+    // socketListener(socket, io);
+
+    socket.on("sendMessage", async (data) => {
+      console.log("a message is sent");
+    });
 
     console.log("socket closed");
     await removeUserBySocketId(socket.id);
