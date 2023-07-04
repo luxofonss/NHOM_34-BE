@@ -303,7 +303,7 @@ class AccessService {
 
   static oauthSuccess = async (req, res) => {
     // console.log("req:: ", req);
-    console.log("req.user:: ", req);
+    console.log("req.user:: ", req.session.passport.user);
     const cookies = req.cookies;
     if (req.user) {
       const userInfo = await UserService.findByUserId({ userId: req.user._id });
