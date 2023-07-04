@@ -31,9 +31,10 @@ class NotificationService {
       .find({
         userId: convertToObjectIdMongodb(userId),
       })
+      .populate("senderId", "name _id avatar ")
       .skip(skip)
       .limit(limit)
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .exec();
   }
 }

@@ -257,7 +257,7 @@ class CartService {
 
   static async getCart({ userId, page = 1, sort = "ctime", limit = 20 }) {
     const skip = limit * (page - 1);
-    const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+    const sortBy = sort === "ctime" ? { createdOn: -1 } : { createdOn: 1 };
     const response = await cart
       .aggregate([
         { $match: { userId: convertToObjectIdMongodb(userId) } },
@@ -375,6 +375,9 @@ class CartService {
                 },
               },
             },
+            hasProductChecked: {
+              $sum: "$products.products.checked",
+            },
           },
         },
         {
@@ -387,6 +390,7 @@ class CartService {
                 $cond: [{ $eq: ["$checked", 1] }, 1, 0], // Count checked values (true)
               },
             },
+            hasProductChecked: { $sum: "$hasProductChecked" },
           },
         },
         {
@@ -395,6 +399,7 @@ class CartService {
             totalPrice: 1,
             data: 1,
             allChecked: { $eq: ["$countChecked", { $size: "$data" }] },
+            hasProductChecked: { $sum: "$hasProductChecked" },
           },
         },
         { $sort: sortBy },
@@ -406,7 +411,7 @@ class CartService {
     if (response[0]) {
       return response[0];
     } else {
-      throw new BadRequestError("Lỗi hệ thống, vui lòng thử lại sau");
+      return response;
     }
   }
 

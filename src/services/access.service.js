@@ -37,7 +37,7 @@ class AccessService {
       password: passwordHash,
       phoneNumber,
       dateOfBirth,
-      address,
+      address: [address],
     });
 
     // create user successfully
@@ -105,8 +105,7 @@ class AccessService {
     console.log("cookies jwt: ", cookies.jwt);
     // check if user exists
     const foundUser = await UserService.findByEmail({ email });
-    if (!foundUser)
-      throw new AuthFailureError("Error: Email or password is not correct");
+    if (!foundUser) throw new AuthFailureError("Email chưa được đăng ký!");
 
     console.log("foundUser: ", foundUser);
     if (foundUser.oauthId) {
@@ -117,11 +116,11 @@ class AccessService {
     // compare password
     const match = await bcrypt.compare(password, foundUser.password);
     console.log("pwd match:: ", match);
-    if (!match) throw new AuthFailureError("Error: Unauthorized!");
+    if (!match) throw new AuthFailureError("Mật khẩu không đúng!");
 
     // create public key, private key
     const keyStore = await KeyStoreService.findByUserId(foundUser._id);
-    if (!keyStore) throw new AuthFailureError("Error: User not found!");
+    if (!keyStore) throw new AuthFailureError("Không tìm thấy tài khoản!");
 
     // create token pair
     const publicKeyObject = crypto.createPublicKey(keyStore.publicKey);
