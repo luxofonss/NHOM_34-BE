@@ -84,6 +84,7 @@ const filterOrders = async ({
     {
       $unwind: "$variationDetails",
     },
+    { $sort: { createdAt: -1 } },
     { $limit: parseInt(limit) },
     {
       $facet: {
@@ -116,7 +117,6 @@ const filterOrders = async ({
         ],
       },
     },
-    { $sort: sortBy },
     { $skip: skip },
   ];
 

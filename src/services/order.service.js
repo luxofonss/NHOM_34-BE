@@ -19,6 +19,7 @@ const { updateStockProduct } = require("../models/repositories/product.repo");
 const { checkIfUserIsOnline } = require("./redis.service");
 const NotificationService = require("./notification.service");
 const accounting = require("accounting");
+const { default: slugify } = require("slugify");
 
 class OrderService {
   static async addOrderOneShop({ shopId, address, userId, products }) {}
@@ -88,14 +89,14 @@ class OrderService {
           shipping: { address: address, unit: "GHTK" },
           payment: { method: "COD" },
           products: shop.products,
-          trackingNumber: shop.shop.shop.name + uuidv4().slice(0, 8),
+          trackingNumber: slugify(shop.shop.shop.name) + uuidv4().slice(0, 8),
           status: "PENDING",
         });
 
         console.log(shop.shopId.toString());
         await NotificationService.createNotification({
-          userId,
-          senderId: shop.shopId,
+          userId: shop.shopId,
+          senderId: userId,
           orderId: newOrder._id,
           type: NOTIFICATION_TYPE.ORDER_SHOP,
           message: `Bạn có đơn hàng mới trị giá ${accounting.formatNumber(
@@ -213,7 +214,7 @@ class OrderService {
               },
             },
           },
-          { $sort: sortBy },
+          { $sort: { createdAt: -1 } },
           { $skip: skip },
           { $limit: limit },
         ])
@@ -345,7 +346,7 @@ class OrderService {
           return await decreaseVariation({
             variationId: product.variationId,
             quantity: product.quantity,
-          }).exec();
+          });
         })
       );
 
