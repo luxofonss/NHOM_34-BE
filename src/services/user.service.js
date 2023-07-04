@@ -87,7 +87,7 @@ class UserService {
       throw new BadRequestError("Bạn đã đăng ký làm nhà bán hàng");
     foundUser.shopInfo = shopInfo;
     foundUser.isShop = true;
-    foundUser.roles.push(USER_ROLE.SHOP);
+    foundUser.roles.push(USER_ROLE.ADMIN);
     return await foundUser.save();
   };
 
